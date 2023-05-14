@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+.sect {
+    background: radial-gradient(rgb(0, 130, 216), #333);
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+}
+
+
+.formu {
+    background: #fff;
+    border-radius: 10px;
+    max-width: 600px;
+    width: 500px;
+    height: auto;
+    padding: 30px;
+    padding-top: 60px;
+    position: relative;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 5;
+}
+
+.formu img {
+    width: 170px;
+    position: absolute;
+    /* bottom: 290px; */
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0;
+    border: 2px solid #0082d8;
+    border-radius: 50%;
+    padding: 0;
+    margin-top: -100px;
+}
+
+
+.sect::before {
+    content: "";
+    position: absolute;
+    height: 200px;
+    width: 200px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, #268a2a, #0082d8);
+    transform: translate(-310px, -100px);
+}
+
+.sect::after {
+    content: "";
+    position: absolute;
+    height: 200px;
+    width: 200px;
+    border-radius: 50%;
+    background: linear-gradient(150deg, #268a2a, #0082d8);
+    transform: translate(310px, 100px);
+    z-index: 0;
+}
+
+.form-control:focus {
+    border-color: #86b7fe !important;
+    outline: 0;
+    box-shadow: none;
+}
+
+.btn-check:focus+.botonSess, .botonSess:focus {
+    color: #fff;
+    background-color: #4caf50;
+    border-color: #4caf50;
+    box-shadow: 0 0 0 0.25rem rgba(49,132,253,.5);
+}
+
+
+label:first-child {
+    margin-top: 20px;
+}
+
+
+label {
+    position: relative;
+    margin-bottom: 8px;
+    width: 100%;
+    display: block;
+    font-size: 1.1rem;
+}
+
+label span {
+    color: #222;
+    font-size: 15px;
+}
+
+.InptText,
+.inptpassword {
+    width: 100%;
+    font-size: 1.1rem;
+    border: none;
+    outline: none;
+    border-radius: 8px !important;
+    margin-bottom: 20px !important;
+    border-bottom: 2px solid #aaaa !important;
+    transition: all 0.2s ease;
+}
+.InptText{
+    padding: 8px 30px;
+
+}
+.inptpassword {
+    padding: 8px 45px 8px 30px;
+}
+
+label i {
+    position: absolute;
+    top: 50%;
+    /* transform: translateY(4%); */
+    font-size: 18px;
+    color: #707070;
+}
+
+label .iconVer {
+    cursor: pointer;
+    /* left: 100%; */
+    right: 0;
+    font-size: 17px;
+    margin-right: 5px;
+}
+
+input:focus~i.icnos {
+    color: #86b7fe;
+    outline: none;
+}
+
+
+.botonSess {
+    background-color: #4caf50;
+    color: #ffffff;
+    font-size: 1.1rem;
+    padding: 10px 20px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 10px;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+
+.botonSess:hover {
+    transition: all 0.2s ease;
+    background: linear-gradient(120deg, #4caf50, #0d6efd);
+}

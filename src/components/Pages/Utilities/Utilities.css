@@ -1,0 +1,9 @@
+.forma {
+    background: #bbbaba;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    padding: 30px;
+    width: 50%;
+}

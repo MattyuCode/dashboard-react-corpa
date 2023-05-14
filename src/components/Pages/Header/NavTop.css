@@ -1,0 +1,148 @@
+.content-wrapper {
+    /* background-color: #1650ff; */
+    width: 100%;
+    overflow-x: hidden;
+    flex-direction: column !important;
+    display: flex !important;
+}
+
+
+.content-wrapper .content {
+    flex: 1 0 auto;
+}
+
+.topbar {
+    --color: #0a6672;
+    background: #f1f1f1;
+    height: 4.375rem;
+}
+
+.topbar.dark{
+    background: #222;
+}
+.search-bar input {
+    padding: 8px 16px;
+    border: 1px solid rgb(146, 146, 146);
+    border-radius: 100px;
+    flex: 1;
+    background-color: transparent;
+    font-size: 16px;
+}
+
+.search-bar input:focus::placeholder {
+    color: var(--color);
+}
+
+.topbar form{
+    width: 30%;
+}
+
+
+.topbar .search-bar {
+    position: relative;
+    /* width: 25%; */
+    display: flex;
+    align-items: center;
+}
+
+.search-bar input:focus {
+    outline: none;
+    border: 1px solid var(--color);
+  }
+  
+  .search-bar .icon {
+    position: absolute;
+    right: 8px;
+    font-size: 18px;
+    color: rgb(82, 82, 82);
+  }
+  
+  .search-bar input:focus~.icon {
+    color: var(--color);
+  }
+
+
+
+
+   .tools {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+  }
+   .tools a{
+    align-items: center;
+    display: flex;}
+  
+   .tools .icon {
+    color: rgb(82, 82, 82);
+    font-size: 20px;
+    cursor: pointer;
+  }
+  
+  .dark .tools .icon {
+    color: rgb(255, 255, 255);
+  }
+  
+   .tools .icon:hover {
+    color: var(--color);
+  }
+  
+   .tools .divider {
+    background-color: var(--color);
+    width: 1px;
+    border-radius: 100px;
+    align-self: stretch;
+  }
+  
+   .tools .user {
+    position: relative;
+    height: 30px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 1px solid var(--color);
+    background-color: lightgray;
+    cursor: pointer;
+  }
+  
+  .user img {
+    height: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    object-fit: cover;
+  
+  }
+  
+   .tools .user:active {
+    scale: 0.97;
+  }
+  
+  .dark input {
+    color: white;
+  }
+
+
+
+
+
+
+.navbar-expand {
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+}
+
+.navbar {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+}
+
+@media ((max-width: 678) and (min-width : 889)) {
+    .topbar .search-bar {
+        width: 100%;
+        display: none;
+    }
+}

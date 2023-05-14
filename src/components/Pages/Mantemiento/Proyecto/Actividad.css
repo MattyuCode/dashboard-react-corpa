@@ -1,0 +1,37 @@
+.inpuBuscar {
+    /* width: 100%; */
+    font-size: 0.9rem;
+    border: none;
+    outline: none;
+    border-radius: 8px !important;
+    /* margin-bottom: 20px !important; */
+    border-bottom: 2px solid #aaaa !important;
+    transition: all 0.2s ease;
+}
+
+.inpuBuscar:focus {
+    border-color: #0c7b8a !important;
+    outline: 0;
+    box-shadow: none;
+}
+
+.btnCrea {
+    padding: 0.7rem 1.6rem;
+    padding-top: 0.58rem;
+    padding-bottom: 0.58rem;
+    border-radius: 10em !important;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, .16), 0 2px 10px 0 rgba(0, 0, 0, .12);
+}
+
+.tab-contentAct {
+    padding: 3rem 2rem 1rem;
+}
+
+.card {
+    position: relative;
+    border-color: #daa520 !important;
+}
+
+.custom-cell {
+    padding: 5px;
+}
