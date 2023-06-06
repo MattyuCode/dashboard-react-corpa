@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { API_Services } from "../../../../Config/APIService";
+import { API_Services } from "../../../Config/APIService";
 import { FormControl } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { AiFillEdit, AiOutlinePlus, AiTwotoneDelete } from "react-icons/ai";
 import { BiDetail } from "react-icons/bi";
-
+import axios from 'axios';
 const Parte = () => {
   const [parte, setParte] = useState([]);
   const [filterParte, setFilterParte] = useState([]);
@@ -15,24 +15,37 @@ const Parte = () => {
 
   const columns = [
     {
-      name: "NOMBRE AREA",
+      name: "ID",
+      selector: (row) => row.ID,
+      sortable: true,
+      width: "50px",
+    },
+    {
+      name: "NOMBRE",
       selector: (row) => row.NOMBRE,
       sortable: true,
-      width: "200px",
+      width: "150px",
     },
     {
       name: "DESCRIPCIÓN",
       selector: (row) => row.DESCRIPCION,
       sortable: true,
+      width: "150px",
     },
     {
-      name: "ID_EQUIPO",
-      selector: (row) => row.ID_EQUIPO,
+      name: "PROYECTO",
+      selector: (row) => row.NOMBRE_PROYECTO,
       sortable: true,
-      width: "200px",
+      width: "150px",
     },
     {
-      name: "ACCIONES",
+      name: "NOMBRE_SUBPROYECTO",
+      selector: (row) => row.NOMBRE_SUBPROYECTO,
+      sortable: true,
+      width: "150px",
+    },
+    {
+      name: "ACCIONES", 
       cell: (row) => (
         <td>
           <Link
@@ -52,23 +65,7 @@ const Parte = () => {
           <button
             className="btn btn-sm btn-danger"
             onClick={() => {
-              Swal.fire({
-                title: "¿Está seguro de eliminar este registro?",
-                text: "Esta acción no se puede deshacer",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#28a745",
-                cancelButtonColor: "#dc3545",
-                confirmButtonText: "Sí, eliminar",
-                cancelButtonText: "Cancelar",
-                reverseButtons: true,
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  deleteParte(row.ID);
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                  Swal.fire("Cancelado", "El registro está segura 🗃", "error");
-                }
-              });
+              delete_PARTE(row.ID);
             }}
           >
             <AiTwotoneDelete /> Eliminar
@@ -173,12 +170,63 @@ const Parte = () => {
     }
   };
 
+  const delete_PARTE = async (id) => {
+   
+    Swal.fire({
+      title: 'Desea Eliminar el Registro?',
+      text: "Esta Acción no se podrá revertir",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si, Eliminar!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+          axios.delete(`/api/PARTE/${id}`, {headers: { Authorization: `Bearer ${token}` }})
+          .then(function (response) {
+              Swal.fire({
+                  icon: 'success',
+                  title: 'Registro Eliminado!',
+                  showConfirmButton: false,
+                  timer: 1500,
+                  
+              })
+              debugger
+              setParte(parte.filter((item) => item.ID !== id));
+          },)
+          .catch(function (error) {
+            if(error.request["status"]==404){
+              Swal.fire({
+                icon: 'error',
+               title: "No espoble eliminar este registro porque contiene dependencias",
+               showConfirmButton: false,
+               timer: 3000
+           })
+            }else{
+              Swal.fire({
+                icon: 'error',
+               title: error.request["status"],
+               showConfirmButton: false,
+               timer: 1500
+           })
+            }
+          });
+      }
+    })
+
+
+
+    
+  };
+
   const handleFilter = (e) => {
     const searchValue = e.target.value.toLowerCase();
     const newData = filterParte.filter(
-      (item) =>
-        item.NOMBRE.toLowerCase().includes(searchValue) ||
-        item.DESCRIPCION.toLowerCase().includes(searchValue)
+      (row) =>
+        row.NOMBRE.toLowerCase().includes(searchValue) ||
+        row.DESCRIPCION.toLowerCase().includes(searchValue)||
+        row.NOMBRE_PROYECTO.toLowerCase().includes(searchValue) ||
+        row.NOMBRE_SUBPROYECTO.toLowerCase().includes(searchValue)
     );
     setParte(newData);
     if (searchValue === "") {
@@ -190,7 +238,7 @@ const Parte = () => {
     <div className="container">
       <div className="row">
         <div className="col-md-12">
-          <span className="titless text-center">Consulta de Parte</span>
+          <span className="titless text-center">Parte</span>
         </div>
         <div className="col-md-12">
           <div className="tab-contentAct card shadow">

@@ -1,11 +1,12 @@
 import { Link, useParams } from "react-router-dom";
-import { API_Services } from "../../../../../Config/APIService";
 import { useEffect, useState } from "react";
 import { IoArrowBackOutline } from "react-icons/io5";
+import { TokenANDnoCia } from "../../../../Utilities/TokenANDnoCia";
+import { API_Services } from "../../../../Config/APIService";
+
 
 const DetailsArea = () => {
-  const token = localStorage.getItem("accessToken");
-  const noCia = localStorage.getItem("NO_CIA");
+  const { noCia, token } = TokenANDnoCia();
   const { ID } = useParams();
   const [areaDetalles, setAreaDetalles] = useState([]);
 

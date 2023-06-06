@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { FormControl } from "react-bootstrap";
 // import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from 'axios';
 
 const Actividades = () => {
   const [actVidd, setActiVidad] = useState([]);
@@ -25,30 +26,44 @@ const Actividades = () => {
 
   const columns = [
     {
+      name: "ID",
+      selector: (row) => row.ID,
+      sortable: true,
+      width: "100px",
+    },
+    {
       name: "NOMBRE",
       selector: (row) => row.NOMBRE,
       sortable: true,
-      width: "200px",
+      width: "300px",
     },
     {
       name: "DESCRIPCION",
       selector: (row) => row.DESCRIPCION,
       sortable: true,
-      // width: "300px",
+       width: "300px",
     },
     {
-      name: "ID_SUBPROYECTO",
-      selector: (row) => row.ID_SUBPROYECTO,
+      name: "PROYECTO",
+      selector: (row) => row.NOMBRE_PROYECTO,
+      sortable: true,
+      width: "300px",
+    },
+    {
+      name: "SUBPROYECTO",
+      selector: (row) => row.NOMBRE_SUBPROYECTO,
       sortable: true,
       width: "200px",
     },
     {
       name: "ACCIONES",
+      width: "300px",
       cell: (row) => (
         <td>
           <Link
             to={`/detailsActividad/${noCia}/${row.ID}`}
             className="btn btn-warning btn-sm"
+            
           >
             <BiDetail /> Detalles
           </Link>{" "}
@@ -63,23 +78,7 @@ const Actividades = () => {
           <button
             className="btn btn-sm btn-danger"
             onClick={() => {
-              Swal.fire({
-                title: "¿Está seguro de eliminar la actividad?",
-                text: "Esta acción no se puede deshacer",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#28a745",
-                cancelButtonColor: "#dc3545",
-                confirmButtonText: "Sí, eliminar",
-                cancelButtonText: "Cancelar",
-                reverseButtons: true,
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  deleteIDActividad(row.ID);
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                  Swal.fire("Cancelado", "La actividad está segura 🗃", "error");
-                }
-              });
+              delete_Activity(row.ID)
             }}
           >
             <AiTwotoneDelete /> Eliminar
@@ -155,6 +154,7 @@ const Actividades = () => {
         });
         const data = await response.json();
         setActiVidad(data);
+        debugger
         // console.log(data);
         setFilteredActVidad(data);
         // setTotalRows(data.length);
@@ -165,44 +165,66 @@ const Actividades = () => {
     API_Actividad(token);
   }, [token, noCia]);
 
-  // API PARA ELIMINAR UN ID DE LA ACTIVIDA
-  const deleteIDActividad = async (id) => {
-    try {
-      const urlDele = `https://apiproyectosdesarrollo.corpacam.com.gt/api/ACTIVIDAD/${id}`;
-      // const urlDele = `${process.env.REACT_APP_BACKEND_URL}/api/ACTIVIDAD/${id}`;
 
-      const requestOptions = {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      };
-      const response = await fetch(urlDele, requestOptions);
-      const data = await response.json();
-      // console.log(data.msg)
-      if (response.ok) {
-        setActiVidad(actVidd.filter((item) => item.ID !== id));
-        Swal.fire({
-          icon: "success",
-          // title: "Actividad Eliminada",
-          title: `${data.msg}`,
-          text: "La actividad se ha eliminado exitosamente",
-        });
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Ocurrió un error al eliminar la actividad.",
-        });
+
+
+  // API PARA ELIMINAR UN ID DE LA ACTIVIDA
+  const delete_Activity = async (id) => {
+
+    Swal.fire({
+      title: 'Desea Eliminar el Registro?',
+      text: "Esta Accion no se podrá revertir",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si, Eliminar!'
+    }).then((result) => {
+      debugger
+      if (result.isConfirmed) {
+        axios.delete(`/api/ACTIVIDAD/${id}`, {headers: { Authorization: `Bearer ${token}` }})
+          .then(function (response) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Registro Eliminado!',
+              showConfirmButton: false,
+              timer: 1500,
+
+            })
+            setActiVidad(actVidd.filter((item) => item.ID !== id));
+          },)
+          .catch(function (error) {
+            if (error.request["status"] == 404) {
+              
+              Swal.fire({
+                icon: 'error',
+                title: "No espoble eliminar este registro porque contiene dependencias",
+                showConfirmButton: false,
+                timer: 3000
+              })
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: error.request["status"],
+                showConfirmButton: false,
+                timer: 1500
+              })
+            }
+
+          });
       }
-    } catch (error) {
-      console.log(error);
-    }
+    })
+
   };
 
   const handleFilter = (e) => {
     const searchValue = e.target.value.toLowerCase();
     const newData = filteredActVidd.filter(
       (row) =>
-        row.DESCRIPCION.toLowerCase().includes(searchValue)
+      row.NOMBRE.toLowerCase().includes(searchValue) ||
+      row.DESCRIPCION.toLowerCase().includes(searchValue) ||
+        row.NOMBRE_PROYECTO.toLowerCase().includes(searchValue)||
+        row.NOMBRE_SUBPROYECTO.toLowerCase().includes(searchValue) 
     );
     setActiVidad(newData);
     if (searchValue === "") {
@@ -214,7 +236,7 @@ const Actividades = () => {
     <div className="container mt-4 ">
       <div className="row">
         <div className="col-md-12">
-          <span className="titless text-center">Consulta de Actividades</span>
+          <span className="titless text-center">Actividades</span>
         </div>
 
         <div className="col-md-12 ">

@@ -3,10 +3,10 @@ import { BiDetail } from "react-icons/bi";
 import { AiFillEdit, AiOutlinePlus, AiTwotoneDelete } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { FormControl } from "react-bootstrap";
-import { API_Services } from "../../../../Config/APIService";
+import { API_Services } from "../../../Config/APIService";
 import Swal from "sweetalert2";
 import DataTable from "react-data-table-component";
-
+import axios from 'axios';
 const Etapa = () => {
   const [etapa, setEtapa] = useState([]);
   const [filteredEtapa, setFilteredEtapa] = useState([]);
@@ -15,24 +15,38 @@ const Etapa = () => {
 
   const columns = [
     {
+      name: "ID",
+      selector: (row) => row.ID,
+      sortable: true,
+      width: "100px",
+    },
+    {
       name: "NOMBRE",
       selector: (row) => row.NOMBRE,
       sortable: true,
-      width: "200px",
+      width: "300px",
     },
     {
       name: "DESCRIPCION",
       selector: (row) => row.DESCRIPCION,
       sortable: true,
+      width: "300px",
     },
     {
-      name: "ID_SUBPROYECTO",
-      selector: (row) => row.ID_SUBPROYECTO,
+      name: "PROYECTO",
+      selector: (row) => row.NOMBRE_PROYECTO,
       sortable: true,
-      width: "200px",
+      width: "300px",
+    },
+    {
+      name: "SUBPROYECTO",
+      selector: (row) => row.NOMBRE_SUBPROYECTO,
+      sortable: true,
+      width: "300px",
     },
     {
       name: "ACCIONES",
+      width: "300px",
       cell: (row) => (
         <td>
           <Link
@@ -52,23 +66,7 @@ const Etapa = () => {
           <button
             className="btn btn-sm btn-danger"
             onClick={() => {
-              Swal.fire({
-                title: "¿Está seguro de eliminar la Etapa?",
-                text: "Esta acción no se puede deshacer",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#28a745",
-                cancelButtonColor: "#dc3545",
-                confirmButtonText: "Sí, eliminar",
-                cancelButtonText: "Cancelar",
-                reverseButtons: true,
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  deleteIdEtapa(row.ID);
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                  Swal.fire("Cancelado", "La Etapa está segura 🗃", "error");
-                }
-              });
+              delete_ETAPA(row.ID)
             }}
           >
             <AiTwotoneDelete /> Eliminar
@@ -143,42 +141,66 @@ const Etapa = () => {
     API_Etapa();
   }, [token, noCia]);
 
-  const deleteIdEtapa = async (id) => {
-    try {
-      const requestOptions = {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      };
-      const response = await fetch(
-        `${API_Services}/ETAPA/${id}`,
-        requestOptions
-      );
-      const data = await response.json();
-      if (response.ok) {
-        setEtapa(etapa.filter((item) => item.ID !== id));
-        Swal.fire({
-          icon: "success",
-          title: `${data.msg}`,
-          text: "La etapa se ha eliminado exitosamente",
-        });
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Ocurrió un error al eliminar la etapa.",
-        });
+
+
+  const delete_ETAPA = async (id) => {
+
+    Swal.fire({
+      title: 'Desea Eliminar el Registro?',
+      text: "Esta Accion no se podrá revertir",
+      icon: 'warning',
+      showCancelButton: true,
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si, Eliminar!'
+    }).then((result) => {
+      debugger
+      if (result.isConfirmed) {
+        axios.delete(`/api/ETAPA/${id}`, {headers: { Authorization: `Bearer ${token}` }})
+          .then(function (response) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Registro Eliminado!',
+              showConfirmButton: false,
+              timer: 1500,
+
+            })
+            setEtapa(etapa.filter((item) => item.ID !== id));
+          },)
+          .catch(function (error) {
+            if (error.request["status"] == 404) {
+              
+              Swal.fire({
+                icon: 'error',
+                title: "No espoble eliminar este registro porque contiene dependencias",
+                showConfirmButton: false,
+                timer: 3000
+              })
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: error.request["status"],
+                showConfirmButton: false,
+                timer: 1500
+              })
+            }
+
+          });
       }
-    } catch (error) {
-      console.log(error);
-    }
+    })
+
   };
+
 
   const handleFilter = (e) => {
     const searchValue = e.target.value.toLowerCase();
     const newData = filteredEtapa.filter(
       (row) =>
         row.NOMBRE.toLowerCase().includes(searchValue) ||
-        row.DESCRIPCION.toLowerCase().includes(searchValue)
+        row.DESCRIPCION.toLowerCase().includes(searchValue)||
+        row.NOMBRE_PROYECTO.toLowerCase().includes(searchValue)||
+        row.NOMBRE_SUBPROYECTO.toLowerCase().includes(searchValue) 
     );
     setEtapa(newData);
     if (searchValue === "") {
@@ -190,7 +212,7 @@ const Etapa = () => {
     <div className="container mt-4 ">
       <div className="row">
         <div className="col-md-12">
-          <span className="titless text-center">Consulta de Etapas</span>
+          <span className="titless text-center">Etapas</span>
         </div>
 
         <div className="col-md-12 ">

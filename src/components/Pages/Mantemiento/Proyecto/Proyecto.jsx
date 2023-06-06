@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-//import "./Actividad.css";
 import { BiDetail } from "react-icons/bi";
 import { AiFillEdit, AiOutlinePlus, AiTwotoneDelete } from "react-icons/ai";
 import { Link } from "react-router-dom";
@@ -9,107 +8,118 @@ import { FormControl } from "react-bootstrap";
 import axios from 'axios';
 import Table from 'react-bootstrap/Table';
 
-// import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 const Proyecto = () => {
+
   const [proyect, setProyect] = useState([]);
   const [filteredProyect, setFilteredActVidad] = useState([]);
   const token = localStorage.getItem("accessToken");
   const noCia = localStorage.getItem("NO_CIA");
   const Token = {
     headers: { Authorization: `Bearer ${token}` }
-};
-const [Listsubproyect, setSubProyecto] = useState([]);
-
- 
-  const API_SUBPROYECTO = async (accessToken) => {
+  };
+  const [Listsubproyect, setSubProyecto] = useState([]);
+  const [currentRow, setCurrentRow] = useState(null);
+  const [validaestado, setValidaEstado] = useState(0);
+  const API_SUBPROYECTO = async (accessToken, idProy) => {
     try {
       const url =
-        `${axios.getUri()}/api/SUBPROYECTO/Select/${localStorage.getItem("NO_CIA")}`;
+        `${axios.getUri()}/api/SUBPROYECTO/Select/${localStorage.getItem("NO_CIA")}/${idProy}`;
 
       const response = await fetch(url, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       const data = await response.json();
-      
+
       setSubProyecto(data);
-      setUsuarioCrea(data[0]["USUARIO_CREA"]);
-      setEstado(data[0]["ESTADO"]);
-      
+      //setUsuarioCrea(data[0]["USUARIO_CREA"]);
+      //setEstado(data[0]["ESTADO"]);
+
     } catch (error) {
       console.log(error);
     }
   };
-  API_SUBPROYECTO(token);
-
-  
-     
-     
-  
-  
+  //API_SUBPROYECTO(token);
 
 
-  
-  function ExpandedComponent(idproyecto) {
-    debugger;
-    var cont=1;
+
+  function ExpandedComponent() {
+
+    if (validaestado != currentRow["ID"]) {
+      console.log(currentRow);
+      API_SUBPROYECTO(token, currentRow["ID"]);
+      setValidaEstado(currentRow["ID"])
+    }
+
+    //setSelectedData(dd.data.ID);
+    //debugger;
+    var cont = 1;
     return (
       <Table striped bordered hover>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>NOMBRE</th>
-          <th>DESCRIPCION</th>
-          <th>FECHAINICIO</th>
-          <th>FECHAFIN</th>
-        </tr>
-      </thead>
-      <tbody>
-      {Listsubproyect.map((items) => (
-                          
-                     
-        <tr>
-          <td>{cont++}</td>
-          <td>{items.NOMBRE}</td>
-          <td>{items.DESCRIPCION}</td>
-          <td>{items.FECHA_INICIO}</td>
-          <td>{items.FECHA_FIN}</td>
-        </tr>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>NOMBRE</th>
+            <th>DESCRIPCION</th>
+            <th>FECHAINICIO</th>
+            <th>FECHAFIN</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Listsubproyect.map((items) => (
+
+
+            <tr>
+              <td>{items.ID}</td>
+              <td>{items.NOMBRE}</td>
+              <td>{items.DESCRIPCION}</td>
+              <td>{formatDate(items.FECHA_INICIO)}</td>
+              <td>{formatDate(items.FECHA_FIN)}</td>
+            </tr>
           ))}
-      </tbody>
-    </Table>
-  );
-    
+        </tbody>
+      </Table>
+    );
+
   }
 
   const columns = [
-   
+    {
+      name: "ID",
+      selector: (row) => row.ID,
+      sortable: true,
+      width: "100px",
+    },
+    {
+      name: "DESCRIPCION",
+      selector: (row) => row.NOMBRE,
+
+      sortable: true,
+      width: "300px",
+    },
+
     {
       name: "DESCRIPCION",
       selector: (row) => row.DESCRIPCION,
-      
+
       sortable: true,
-      // width: "300px",
-    },
-    
-    {
-      name: "SUBPROYECTO",
-      //selector: (row) => row.ID,
+      width: "300px",
       
-      sortable: true,
-      width: "200px",
-     
+
+
     },
-    
+
     {
       name: "ACCIONES",
+      width: "400px",
       cell: (row) => (
         <td>
           <Link
             to={`/DetailsProyect/${row.ID}`}
             className="btn btn-warning btn-sm"
           >
-            <BiDetail /> Detalles
+            <BiDetail /> SubProyectos
           </Link>{" "}
           &nbsp;
           <Link
@@ -123,7 +133,7 @@ const [Listsubproyect, setSubProyecto] = useState([]);
             className="btn btn-sm btn-danger"
             onClick={() => {
               delete_Proyect(row.ID);
-             
+
             }}
           >
             <AiTwotoneDelete /> Eliminar
@@ -139,11 +149,7 @@ const [Listsubproyect, setSubProyecto] = useState([]);
         border: "2px solid #dbdbdb",
       },
     },
-    // tableWrapper: {
-    //   style: {
-    //     display: 'table',
-    //   },
-    // },
+
     headRow: {
       style: {
         backgroundColor: "#dbdbdb",
@@ -193,25 +199,24 @@ const [Listsubproyect, setSubProyecto] = useState([]);
   useEffect(() => {
     const API_Proyect = async (accessToken) => {
       try {
-        const url = `https://apiproyectosdesarrollo.corpacam.com.gt/api/PROYECTO/Select/${noCia}`;
+        const url = `${axios.getUri()}/api/PROYECTO/Select/${noCia}`;
         const response = await fetch(url, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         const data = await response.json();
         setProyect(data);
-        // console.log(data);
         setFilteredActVidad(data);
-        // setTotalRows(data.length);
+
       } catch (error) {
         console.log(error);
       }
     };
     API_Proyect(token);
-  }, [token, noCia]);
+  }, []);
 
   // API PARA ELIMINAR UN ID DE LA ACTIVIDA
   const delete_Proyect = async (id) => {
-   
+
     Swal.fire({
       title: 'Desea Eliminar el Registro?',
       text: "Esta Accion no se podrá revertir",
@@ -222,38 +227,48 @@ const [Listsubproyect, setSubProyecto] = useState([]);
       confirmButtonText: 'Si, Eliminar!'
     }).then((result) => {
       if (result.isConfirmed) {
-          axios.delete(`/api/PROYECTO/${id}`,Token)
+        axios.delete(`/api/PROYECTO/${id}`, Token)
           .then(function (response) {
-              Swal.fire({
-                  icon: 'success',
-                  title: 'Registro Eliminado!',
-                  showConfirmButton: false,
-                  timer: 1500,
-                  
-              })
-              setProyect(proyect.filter((item) => item.ID !== id));
+            Swal.fire({
+              icon: 'success',
+              title: 'Registro Eliminado!',
+              showConfirmButton: false,
+              timer: 1500,
+
+            })
+            setProyect(proyect.filter((item) => item.ID !== id));
           },)
           .catch(function (error) {
+            if (error.request["status"] == 404) {
               Swal.fire({
-                   icon: 'error',
-                  title: error.request["status"],
-                  showConfirmButton: false,
-                  timer: 1500
+                icon: 'error',
+                title: "No espoble eliminar este registro porque contiene dependencias",
+                showConfirmButton: false,
+                timer: 3000
               })
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: error.request["status"],
+                showConfirmButton: false,
+                timer: 1500
+              })
+            }
+
           });
       }
     })
 
 
 
-    
+
   };
 
   const handleFilter = (e) => {
     const searchValue = e.target.value.toLowerCase();
     const newData = filteredProyect.filter(
       (row) =>
-       
+
         row.DESCRIPCION.toLowerCase().includes(searchValue)
     );
     setProyect(newData);
@@ -287,20 +302,22 @@ const [Listsubproyect, setSubProyecto] = useState([]);
             </div>
             <DataTable
               columns={columns}
-              
-              data={proyect}
-              // data={rows}
+
+
               pagination
               paginationComponentOptions={paginationComponentOptions}
               fixedHeader
               customStyles={customStyles}
-              // progressPending={pending}
-              // progressComponent={<BiLoader />}
               noDataComponent={<CustomNoDataComponent />}
               highlightOnHover
               rowExpandible
               expandableRows
+              expandableRowExpanded={(row) => (row === currentRow)}
+
+              onRowExpandToggled={(bool, row) => setCurrentRow(row)}
               expandableRowsComponent={ExpandedComponent}
+              expandOnRowDoubleClicked
+              data={proyect}
             />
           </div>
         </div>
@@ -310,3 +327,12 @@ const [Listsubproyect, setSubProyecto] = useState([]);
 };
 
 export default Proyecto;
+
+const formatDate = (date) => {
+
+  const fecha = date.split(" ");// string con la fecha en formato YYYY-MM-DD
+  const parts = fecha[0].split("/");
+
+  const fechaObjeto = parts[0] + "/" + parts[1] + "/" + parts[2];
+  return fechaObjeto;
+}

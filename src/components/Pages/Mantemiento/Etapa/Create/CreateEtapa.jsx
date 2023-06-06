@@ -1,40 +1,82 @@
 import { IoArrowBackOutline } from "react-icons/io5";
 import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { API_Services } from "../../../../../Config/APIService";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import "react-toastify/dist/ReactToastify.css";
+import { API_Services } from "../../../../Config/APIService";
+import { TokenANDnoCia } from "../../../../Utilities/TokenANDnoCia";
+
 
 const CreateEtapa = () => {
   const [subProyectos, setSubProyectos] = useState([]);
+  const [Proyectos, setProyectos] = useState([]);
   const [selectedIdSubProyectos, setSelectedIdSubProyectos] = useState("");
+  const [selectedIdProyectos, setSelectedIdProyectos] = useState(0);
   const [form, setForm] = useState({
     nombre: "",
     descripcion: "",
   });
   const [redirect, setRedirect] = useState(false);
-  const noCia = localStorage.getItem("NO_CIA");
-  const token = localStorage.getItem("accessToken");
+  const { noCia, token } = TokenANDnoCia();
   const usenavigate = useNavigate();
+  const [isenabled, setIsenabled] = useState(false);
+
 
   useEffect(() => {
-    const fetchApiSubProyectos = async () => {
+    const fetchApiProyectos = async (accessToken) => {
       try {
         const response = await fetch(
-          `${API_Services}/SUBPROYECTO/Select/${noCia}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          `${API_Services}/PROYECTO/Select/${noCia}`,
+          { headers: { Authorization: `Bearer ${accessToken}` } }
         );
         const data = await response.json();
-        setSubProyectos(data);
+        setProyectos(data);
       } catch (error) {
         console.log(error);
       }
     };
-    fetchApiSubProyectos();
+    fetchApiProyectos(token);
   }, [noCia, token]);
 
-  const guardarEtapa = async (name, idpro, descr) => {
+
+  const fetchApiSubProyectos = async (accessToken, idproyecto) => {
+
+    try {
+      const response = await fetch(
+        `${API_Services}/SUBPROYECTO/Select/${noCia}/${idproyecto}`,
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      const data = await response.json();
+      setSubProyectos(data);
+      debugger
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+  function llenasubproyecto(idproyecto) {
+    let datos = Proyectos.filter((item) => item.ID == idproyecto)
+    setSelectedIdSubProyectos("")
+    setSelectedIdProyectos(idproyecto)
+    fetchApiSubProyectos(token, datos[0]["ID"]);
+    if (datos[0]["BLK_ETAPA"] == 'S') {
+      setIsenabled(true)
+    } else {
+      setIsenabled(false)
+    }
+
+
+  }
+
+
+
+
+
+  const guardarEtapa = async (name, idsubpro, descr) => {
+    var IDSUBPROYECT
+    idsubpro == "" ? IDSUBPROYECT = 0 : IDSUBPROYECT = idsubpro
     const requestOptions = {
       method: "POST",
       headers: {
@@ -43,8 +85,9 @@ const CreateEtapa = () => {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
+        IdProyecto: selectedIdProyectos,
         nombre: name,
-        id_subproyecto: idpro,
+        id_subproyecto: IDSUBPROYECT,
         descripcion: descr,
         no_cia: `${noCia}`,
       }),
@@ -74,41 +117,75 @@ const CreateEtapa = () => {
 
   const handleInputChange = (e) => {
     e.preventDefault();
+
+    var idsubproyecto
+
+    if (isenabled) {
+      selectedIdSubProyectos == "" ? idsubproyecto = 0 : idsubproyecto = selectedIdSubProyectos
+    } else {
+      idsubproyecto = selectedIdSubProyectos
+    }
+
     let inputNombre = form.nombre;
     let textAreaDescri = form.descripcion;
     let result = true;
     if (
       !inputNombre.trim() ||
-      !textAreaDescri.trim() ||
-      selectedIdSubProyectos === ""
+     // !textAreaDescri.trim()||
+      selectedIdProyectos === "" ||
+      idsubproyecto === ""
     ) {
       result = false;
-      console.log("NO hay datos ");
+  
+      
       toast.error("Todos los campos son obligatorios", {
         theme: "colored",
       });
       document.getElementById("nombreINP").classList.remove("is-valid");
       document.getElementById("nombreINP").classList.add("is-invalid");
 
-      document.getElementById("inputDes").classList.remove("is-valid");
-      document.getElementById("inputDes").classList.add("is-invalid");
+     // document.getElementById("inputDes").classList.remove("is-valid");
+     // document.getElementById("inputDes").classList.add("is-invalid");
 
-      document.getElementById("selectIDO").classList.remove("is-valid");
-      document.getElementById("selectIDO").classList.add("is-invalid");
+        document.getElementById("selectIDO").classList.remove("is-valid");
+        document.getElementById("selectIDO").classList.add("is-invalid");
+
+        document.getElementById("selectIDP").classList.remove("is-valid");
+        document.getElementById("selectIDP").classList.add("is-invalid");
+      
     } else {
+
+      if (subProyectos.length != 0) {
       setForm({ ...form, idSubproyecto: selectedIdSubProyectos });
       guardarEtapa(form.nombre, selectedIdSubProyectos, form.descripcion);
       toast.success("Etapa guardado exitosamente", {
         theme: "colored",
       });
+    } else {
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'Oops...',
+        text: 'El Proyecto no contiene subproyectos, Por Favor Agregar',
+
+      })
+      
+    }
+
+
+
       document.getElementById("nombreINP").classList.remove("is-invalid");
       document.getElementById("nombreINP").classList.add("is-valid");
 
       document.getElementById("inputDes").classList.remove("is-invalid");
       document.getElementById("inputDes").classList.add("is-valid");
+     
+        document.getElementById("selectIDO").classList.remove("is-invalid");
+        document.getElementById("selectIDO").classList.add("is-valid");
 
-      document.getElementById("selectIDO").classList.remove("is-invalid");
-      document.getElementById("selectIDO").classList.add("is-valid");
+        document.getElementById("selectIDP").classList.remove("is-invalid");
+        document.getElementById("selectIDP").classList.add("is-valid");
+      
     }
     return result;
   };
@@ -125,9 +202,57 @@ const CreateEtapa = () => {
         <div className="col-md-12">
           <div className="tab-content shadow" style={{ borderRadius: "15px" }}>
             <div className="row  ">
-              <form onSubmit={handleInputChange}>
+              <form onSubmit={handleInputChange} autoComplete="off">
                 <div className="row">
-                  <div className="col-md-7 mb-4">
+
+                  <div className="col-md-6 mb-4">
+                    <label className="form-label">PROYECTO</label>
+                    <select
+                      className="form-select"
+                      defaultValue={"DEFAULT"}
+                      id="selectIDP"
+                      name="idproyecto"
+
+                      onChange={(e) =>
+
+                        llenasubproyecto(e.target.value)
+                      }
+                    >
+                      <option value="DEFAULT">Seleccionar Proyecto</option>
+                      {Proyectos.map((Proyecto) => (
+                        <option key={Proyecto.ID} select value={Proyecto.ID}>
+                          {Proyecto.NOMBRE}
+
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="col-md-6 mb-4">
+                    <label className="form-label">SUBPROYECTO</label>
+                    <select
+                      className="form-select"
+                      defaultValue={0}
+                      id="selectIDO"
+                      disabled={isenabled}
+                      name="idSubproyecto"
+                      value={selectedIdSubProyectos}
+                      onChange={(e) =>
+                        setSelectedIdSubProyectos(e.target.value)
+                      }
+                    >
+                      <option value="DEFAULT">Seleccionar Sub Proyecto</option>
+                      {subProyectos.map((subproyecto) => (
+                        <option key={subproyecto.ID} value={subproyecto.ID}>
+                          {subproyecto.NOMBRE}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="row">
+                  <div className="col-md-6 mb-4">
                     <div className="form-outline">
                       <label className="form-label">NOMBRE</label>
                       <input
@@ -143,30 +268,7 @@ const CreateEtapa = () => {
                     </div>
                   </div>
 
-                  <div className="col-md-5 mb-4">
-                    <label className="form-label">SUBPROYECTO</label>
-                    <select
-                      className="form-select"
-                      defaultValue={"DEFAULT"}
-                      id="selectIDO"
-                      name="idSubproyecto"
-                      value={selectedIdSubProyectos}
-                      onChange={(e) =>
-                        setSelectedIdSubProyectos(e.target.value)
-                      }
-                    >
-                      <option value="DEFAULT">Selecciona un ID</option>
-                      {subProyectos.map((proyecto) => (
-                        <option key={proyecto.ID} value={proyecto.ID}>
-                          {proyecto.NOMBRE}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="row">
-                  <div className="col-md-12 mb-5">
+                  <div className="col-md-6 mb-5">
                     <div className="form-outline">
                       <label className="form-label">DESCRIPCION</label>
                       <textarea

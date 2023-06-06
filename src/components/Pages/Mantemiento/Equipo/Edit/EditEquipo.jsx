@@ -1,58 +1,134 @@
 import { IoArrowBackOutline } from "react-icons/io5";
 import { useState, useEffect } from "react";
-import { API_Services } from "../../../../../Config/APIService";
 import { ToastContainer, toast } from "react-toastify";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import "react-toastify/dist/ReactToastify.css";
+import { API_Services } from "../../../../Config/APIService";
+import { TokenANDnoCia } from "../../../../Utilities/TokenANDnoCia";
+import axios from 'axios';
+import Select from "react-select";
+
+
 
 const EditEquipo = () => {
   const { ID } = useParams();
+  const { noCia, token } = TokenANDnoCia();
+
+  const [proyecto, setProyecto] = useState([]);
+  const [selectedIdProyecto, setSelectedIdProyecto] = useState("");
+
+  const [subproyecto, setSubProyecto] = useState([]);
+  const [selectedIdSubProyecto, setSelectedIdSubProyecto] = useState("");
+
+  const [area, setArea] = useState([]);
+  const [selectedIdArea, setSelectedIdArea] = useState("");
+
+
   const [subArea, setSubArea] = useState([]);
   const [selectedIdSubArea, setSelectedIdSubArea] = useState("");
   const [form, setForm] = useState({
     nombre: "",
     descripcion: "",
   });
-  const noCia = localStorage.getItem("NO_CIA");
-  const token = localStorage.getItem("accessToken");
   const usenavigate = useNavigate();
 
   useEffect(() => {
-    const fetchApiSubArea = async () => {
-      try {
-        const response = await fetch(
-          `${API_Services}/SUBAREA/Select/${noCia}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        const data = await response.json();
-        setSubArea(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    
+
     const fetchEquipo = async () => {
+
       try {
         const response = await fetch(
           `${API_Services}/EQUIPO/Select/${noCia}/${ID}`,
           { headers: { Authorization: `Bearer ${token}` } }
-          );
-          const data = await response.json();
-          console.log("Mattyu", data)
+        );
+        const data = await response.json();
+
         setForm({
           nombre: data[0].NOMBRE,
           descripcion: data[0].DESCRIPCION,
         });
-        setSelectedIdSubArea(data[0].ID_SUBAREA);
+        setSelectedIdProyecto(data[0].ID_PROYECTO)
+        fetchApiSubProyecto(data[0].ID_PROYECTO)
+        setSelectedIdSubProyecto(data[0].ID_PROYECTO)
+        fetchApiArea(data[0].ID_SUBPROYECTO)
+        setSelectedIdArea(data[0].ID_AREA)
+        fetchApiSubArea(data[0].ID_AREA)
+        setSelectedIdSubArea(data[0].ID_SUBAREA)
       } catch (error) {
         console.log(error);
       }
     };
 
-    fetchApiSubArea();
+
     fetchEquipo();
   }, [ID, noCia, token]);
+
+
+  useEffect(() => {
+    const fetchApiProyecto = async () => {
+      try {
+        const url =
+          `${axios.getUri()}/api/PROYECTO/Select/${noCia}`;
+
+        const response = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await response.json();
+        setProyecto(data);
+
+
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchApiProyecto();
+  }, [noCia, token]);
+
+  async function fetchApiSubProyecto(idproyecto) {
+
+    try {
+      const response = await fetch(
+        `${API_Services}/SUBPROYECTO/Select/${noCia}/${idproyecto}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await response.json();
+      setSubProyecto(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  async function fetchApiArea(idsubproyecto) {
+
+    try {
+      const response = await fetch(
+        `${API_Services}/AREA/SelectIdSubProyecto/${noCia}/${idsubproyecto}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await response.json();
+      setArea(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+  async function fetchApiSubArea(idarea) {
+
+    try {
+      const response = await fetch(
+        `${API_Services}/SUBAREA/SelectIdArea/${noCia}/${idarea}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await response.json();
+      setSubArea(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
 
   const fetchAPIEditar = async (name, idSub, descr) => {
     const requestOptions = {
@@ -89,14 +165,20 @@ const EditEquipo = () => {
     }
   };
 
+
+
   const handleInputChange = (e) => {
     e.preventDefault();
     let inputNombre = form.nombre;
     let textAreaDescri = form.descripcion;
     let result = true;
+    debugger
     if (
       !inputNombre.trim() ||
-      !textAreaDescri.trim() ||
+      //!textAreaDescri.trim() ||
+      !selectedIdProyecto === "" ||
+      selectedIdSubProyecto === "" ||
+      selectedIdArea === "" ||
       selectedIdSubArea === ""
     ) {
       result = false;
@@ -108,8 +190,8 @@ const EditEquipo = () => {
       document.getElementById("nombreINP").classList.remove("is-valid");
       document.getElementById("nombreINP").classList.add("is-invalid");
 
-      document.getElementById("inputDes").classList.remove("is-valid");
-      document.getElementById("inputDes").classList.add("is-invalid");
+      // document.getElementById("inputDes").classList.remove("is-valid");
+      // document.getElementById("inputDes").classList.add("is-invalid");
 
       document.getElementById("selectIDO").classList.remove("is-valid");
       document.getElementById("selectIDO").classList.add("is-invalid");
@@ -132,6 +214,84 @@ const EditEquipo = () => {
     return result;
   };
 
+
+
+
+  //sirve para recorrer el arreglo y formar las opciones  del input select
+  const ListProyecto = proyecto.map((proyecto) => {
+
+    return {
+      value: proyecto.ID,
+      label: proyecto.NOMBRE
+    }
+  }
+  );
+  const selectedOptionProyecto = ListProyecto.find(proyecto => proyecto.value == selectedIdProyecto);
+
+  const GETIDPROYECTO = ({ value }) => {
+    setSelectedIdSubProyecto("")
+    fetchApiSubProyecto(value);
+    setSelectedIdProyecto(value)
+
+  }
+
+  const ListSubProyecto = subproyecto.map((subproyecto) => {
+
+    return {
+      value: subproyecto.ID,
+      label: subproyecto.NOMBRE
+    }
+  }
+  );
+
+  const selectedOptionSubProyecto = ListSubProyecto.find(subproyecto => subproyecto.value == selectedIdSubProyecto);
+
+  const GETIDSUBPROYECTO = ({ value }) => {
+    setSelectedIdArea("")
+    fetchApiArea(value);
+    setSelectedIdSubProyecto(value)
+
+  }
+
+  const ListArea = area.map((AREA) => {
+
+    return {
+      value: AREA.ID,
+      label: AREA.NOMBRE
+    }
+  }
+  );
+
+  const selectedOptionArea = ListArea.find(AREA => AREA.value == selectedIdArea);
+
+  const GETIDAREA = ({ value }) => {
+    setSelectedIdSubArea("")
+    fetchApiSubArea(value);
+    setSelectedIdArea(value)
+
+  }
+  const ListSubArea = subArea.map((SUBAREA) => {
+
+    return {
+      value: SUBAREA.ID,
+      label: SUBAREA.NOMBRE
+    }
+  }
+  );
+  //selecciona la opción según el Id dela subarea que trae de la base de datos
+  const selectedOptionSubArea = ListSubArea.find(subArea => subArea.value == selectedIdSubArea);
+
+  //obtiene el ID DE LA OPCIO SELECCIONADA EN EL SELECT SUBTAREAS
+  const GETIDSUBAREA = ({ value }) => {
+    setSelectedIdSubArea("")
+    setSelectedIdSubArea(value)
+
+  }
+
+
+
+
+
   return (
     <div className="container  mt-4">
       <div className="row" style={{ padding: "0 5rem" }}>
@@ -143,7 +303,99 @@ const EditEquipo = () => {
           <div className=" shadow" style={{ padding: " 4rem" }}>
             <form onSubmit={handleInputChange}>
               <div className="row">
-                <div className="col-md-7 mb-4">
+
+                <div className="col-md-6 mb-4">
+                  <div className="form-outline">
+                    <label className="form-label">PROYECTO</label>
+                    <Select
+                      defaultValue={{ label: 'SELECCIONAR PROYECTO', value: 'empty' }}
+                      options={ListProyecto}
+                      value={selectedOptionProyecto}
+                      onChange={
+                        GETIDPROYECTO
+                      }
+                      id="selectIDO"
+                      name="idSubArea"
+                      required=""
+                    />
+                  </div>
+                </div>
+
+                <div className="col-md-6 mb-4">
+                  <div className="form-outline">
+                    <label className="form-label">SUBPROYECTO</label>
+                    <Select
+                      options={ListSubProyecto}
+                      value={selectedOptionSubProyecto}
+                      onChange={
+                        GETIDSUBPROYECTO
+                      }
+                      id="selectIDO"
+                      name="idSubArea"
+                    />
+                  </div>
+                </div>
+              </div>
+
+
+              <div className="row">
+
+                <div className="col-md-6 mb-4">
+                  <div className="form-outline">
+                    <label className="form-label">AREA</label>
+                    <Select
+                      options={ListArea}
+                      value={selectedOptionArea}
+                      onChange={
+                        GETIDAREA
+                      }
+                      id="selectIDO"
+                      name="idSubArea"
+                    />
+                  </div>
+                </div>
+
+                <div className="col-md-6 mb-4">
+                  <div className="form-outline">
+                    <label className="form-label">SUBAREA</label>
+                    <Select
+                      options={ListSubArea}
+                      value={selectedOptionSubArea}
+                      onChange={
+                        GETIDSUBAREA
+                      }
+                      id="selectIDO"
+                      name="idSubArea"
+                    />
+                  </div>
+                </div>
+              </div>
+              {/* 
+              <div className="row">
+
+                <div className="col-md-12 mb-4">
+                  <div className="form-outline">
+                    <label className="form-label">SUBAREA</label>
+                    <Select
+                      options={ListSubArea}
+                      value={selectedOption}
+                      onChange={
+                        GETIDSUBAREA
+                      }
+                      
+                      id="selectIDO"
+                      name="idSubArea"
+                    />
+                    
+                  </div>
+                </div>
+
+
+              </div>
+*/}
+              <div className="row">
+
+                <div className="col-md-6 mb-4">
                   <div className="form-outline">
                     <label className="form-label">NOMBRE</label>
                     <input
@@ -158,28 +410,7 @@ const EditEquipo = () => {
                     />
                   </div>
                 </div>
-
-                <div className="col-md-5 mb-4">
-                  <label className="form-label">SUBAREA</label>
-                  <select
-                    className="form-select"
-                    value={selectedIdSubArea}
-                    id="selectIDO"
-                    name="idSubArea"
-                    onChange={(e) => setSelectedIdSubArea(e.target.value)}
-                  >
-                    <option value="DEFAULT">Selecciona un ID</option>
-                    {subArea.map((item) => (
-                      <option key={item.ID} value={item.ID}>
-                        {item.NOMBRE}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="row">
-                <div className="col-md-12 mb-5">
+                <div className="col-md-6 mb-5">
                   <div className="form-outline">
                     <label className="form-label">DESCRIPCION</label>
                     <textarea

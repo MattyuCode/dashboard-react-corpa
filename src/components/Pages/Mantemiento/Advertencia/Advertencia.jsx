@@ -1,39 +1,53 @@
 import { useEffect, useState } from "react";
-import { API_Services } from "../../../../Config/APIService";
+import { API_Services } from "../../../Config/APIService";
+import { TokenANDnoCia } from "../../../Utilities/TokenANDnoCia";
 import { FormControl } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { AiFillEdit, AiOutlinePlus, AiTwotoneDelete } from "react-icons/ai";
 import { BiDetail } from "react-icons/bi";
-
+import axios from 'axios';
 const Advertencia = () => {
+  const { noCia, token } = TokenANDnoCia();
   const [advertencia, setAdvertencia] = useState([]);
   const [filterAdvertencia, setFilterAdvertencia] = useState([]);
-  const token = localStorage.getItem("accessToken");
-  const noCia = localStorage.getItem("NO_CIA");
+ 
 
   const columns = [
+    {
+      name: "ID",
+      selector: (row) => row.ID,
+      sortable: true,
+      width: "80px",
+    },
     {
       name: "NOMBRE AREA",
       selector: (row) => row.NOMBRE,
       sortable: true,
-      width: "200px",
+      width: "150px",
     },
     {
       name: "DESCRIPCIÓN",
       selector: (row) => row.DESCRIPCION,
       sortable: true,
-      width: "270px",
+      width: "150px",
     },
     {
-      name: "ID_SUBPROYECTO",
-      selector: (row) => row.ID_SUBPROYECTO,
+      name: "PROYECTO",
+      selector: (row) => row.NOMBRE_PROYECTO,
       sortable: true,
-      width: "170px",
+      width: "150px",
+    },
+    {
+      name: "SUB_PROYECTO",
+      selector: (row) => row.NOMBRE_SUBPROYECTO,
+      sortable: true,
+      width: "150px",
     },
     {
       name: "ACCIONES",
+      width: "300px",
       cell: (row) => (
         <td>
           <Link
@@ -53,23 +67,7 @@ const Advertencia = () => {
           <button
             className="btn btn-sm btn-danger"
             onClick={() => {
-              Swal.fire({
-                title: "¿Está seguro de eliminar este registro?",
-                text: "Esta acción no se puede deshacer",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#28a745",
-                cancelButtonColor: "#dc3545",
-                confirmButtonText: "Sí, eliminar",
-                cancelButtonText: "Cancelar",
-                reverseButtons: true,
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  deleteAdvertencia(row.ID);
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                  Swal.fire("Cancelado", "El registro está segura 🗃", "error");
-                }
-              });
+              delete_LUGARADVERTENCIA(row.ID)
             }}
           >
             <AiTwotoneDelete /> Eliminar
@@ -147,42 +145,59 @@ const Advertencia = () => {
     api_advertencia();
   }, [noCia, token]);
 
-  const deleteAdvertencia = async (id) => {
-    try {
-      const requestOptions = {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      };
-      const response = await fetch(
-        `${API_Services}/LUGARADVERTENCIA/${id}`,
-        requestOptions
-      );
-      const data = await response.json();
-      if (response.ok) {
-        setAdvertencia(advertencia.filter((item) => item.ID !== id));
-        Swal.fire({
-          icon: "success",
-          title: `${data.msg}`,
-          text: "Advertencia eliminado exitosamente",
-        });
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Ocurrió un error al eliminar la advertencia.",
-        });
+
+  const delete_LUGARADVERTENCIA = async (id) => {
+   
+    Swal.fire({
+      title: 'Desea Eliminar el Registro?',
+      text: "Esta Acción no se podrá revertir",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si, Eliminar!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+          axios.delete(`/api/LUGARADVERTENCIA/${id}`, {headers: { Authorization: `Bearer ${token}` }})
+          .then(function (response) {
+              Swal.fire({
+                  icon: 'success',
+                  title: 'Registro Eliminado!',
+                  showConfirmButton: false,
+                  timer: 1500,
+                  
+              })
+              setAdvertencia(advertencia.filter((item) => item.ID !== id));
+          },)
+          .catch(function (error) {
+            if(error.request["status"]==404){
+              Swal.fire({
+                icon: 'error',
+               title: "No espoble eliminar este registro porque contiene dependencias",
+               showConfirmButton: false,
+               timer: 3000
+           })
+            }else{
+              Swal.fire({
+                icon: 'error',
+               title: error.request["status"],
+               showConfirmButton: false,
+               timer: 1500
+           })
+            }
+          });
       }
-    } catch (error) {
-      console.log(error.message);
-    }
+    })
   };
 
   const handleFilter = (e) => {
     const searchValue = e.target.value.toLowerCase();
     const newData = filterAdvertencia.filter(
-      (item) =>
-        item.NOMBRE.toLowerCase().includes(searchValue) ||
-        item.DESCRIPCION.toLowerCase().includes(searchValue)
+      (row) =>
+        row.NOMBRE.toLowerCase().includes(searchValue) ||
+        row.DESCRIPCION.toLowerCase().includes(searchValue)||
+        row.NOMBRE_PROYECTO.toLowerCase().includes(searchValue) ||
+        row.NOMBRE_SUBPROYECTO.toLowerCase().includes(searchValue)
     );
     setAdvertencia(newData);
     if (searchValue === "") {
@@ -194,7 +209,7 @@ const Advertencia = () => {
     <div className="container">
       <div className="row">
         <div className="col-md-12">
-          <span className="titless text-center">Consulta de Advertencia</span>
+          <span className="titless text-center">Advertencia</span>
         </div>
         <div className="col-md-12">
           <div className="tab-contentAct card shadow">

@@ -21,7 +21,7 @@ import { VscLayersActive } from "react-icons/vsc";
 import { IoMdClose } from "react-icons/io";
 import { useEffect, useContext, useState } from "react";
 import Li from "./NavIconTitle/Li";
-import { API } from "../helpers/APIs";
+import { API } from "../../helpers/APIs";
 import { Collapse } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
@@ -137,7 +137,7 @@ const Navbar = () => {
         ))}
       </div>
 
-      <Li Icon={FiMessageSquare} title={"Messages"} />
+  {/*  <Li Icon={FiMessageSquare} title={"Messages"} />
       <Li Icon={AiOutlineUsergroupAdd} title={"Followers"} />
 
       <div className="divider"></div>
@@ -152,16 +152,16 @@ const Navbar = () => {
       <Li Icon={TbFileUpload} title={"Posts"} />
       <Li Icon={BiMessageAltAdd} title={"Message Requests"} />
       <Li Icon={AiOutlineUserSwitch} title={"Change Account"} />
-
-      <div className="divider"></div>
+*/}
+      {/* <div className="divider"></div>
 
       <Li
         Icon={CgDarkMode}
         title={`${DarkTheme ? "LightMode" : "DarkMode"}`}
         onClick={changeTheme}
-      />
-
-      <Li Icon={BiDotsHorizontalRounded} title={"More"} />
+      /> */}
+{/*  <Li Icon={BiDotsHorizontalRounded} title={"More"} /> */}
+    
     </div>
   );
 };

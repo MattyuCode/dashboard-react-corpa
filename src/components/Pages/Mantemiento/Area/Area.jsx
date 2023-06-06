@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import { API_Services } from "../../../../Config/APIService";
-import { FormControl } from "react-bootstrap";
+import { API_Services } from "../../../Config/APIService";
+import { FormControl, Row } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import "./Area.css";
 import Swal from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { AiFillEdit, AiOutlinePlus, AiTwotoneDelete } from "react-icons/ai";
 import { BiDetail } from "react-icons/bi";
-
+import axios from 'axios';
 const Area = () => {
   const [area, setArea] = useState([]);
   const [filterArea, setFilterArea] = useState([]);
@@ -16,24 +15,39 @@ const Area = () => {
 
   const columns = [
     {
+      name: "ID",
+      selector: (row) => row.ID,
+      sortable: true,
+      width: "100px",
+    },
+    {
       name: "NOMBRE AREA",
       selector: (row) => row.NOMBRE,
       sortable: true,
-      width: "200px",
+      width: "300px",
+      
     },
     {
       name: "DESCRIPCIÓN",
       selector: (row) => row.DESCRIPCION,
       sortable: true,
+      width: "300px",
     },
     {
-      name: "ID_SUBPROYECTO",
-      selector: (row) => row.ID_SUBPROYECTO,
+      name: "PROYECTO",
+      selector: (row) => row.NOMBRE_PROYECTO,
+      sortable: true,
+      width: "300px",
+    },
+    {
+      name: "SUBPROYECTO",
+      selector: (row) => row.NOMBRE_SUBPROYECTO,
       sortable: true,
       width: "200px",
     },
     {
       name: "ACCIONES",
+      width: "300px",
       cell: (row) => (
         <td>
           <Link
@@ -53,23 +67,7 @@ const Area = () => {
           <button
             className="btn btn-sm btn-danger"
             onClick={() => {
-              Swal.fire({
-                title: "¿Está seguro de eliminar este registro?",
-                text: "Esta acción no se puede deshacer",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#28a745",
-                cancelButtonColor: "#dc3545",
-                confirmButtonText: "Sí, eliminar",
-                cancelButtonText: "Cancelar",
-                reverseButtons: true,
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  deleteArea(row.ID);
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                  Swal.fire("Cancelado", "El registro está segura 🗃", "error");
-                }
-              });
+              delete_AREA(row.ID)
             }}
           >
             <AiTwotoneDelete /> Eliminar
@@ -144,42 +142,65 @@ const Area = () => {
     isArea();
   }, [noCia, token]);
 
-  const deleteArea = async (id) => {
-    try {
-      const requestOptions = {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      };
-      const response = await fetch(
-        `${API_Services}/AREA/${id}`,
-        requestOptions
-      );
-      const data = await response.json();
-      if (response.ok) {
-        setArea(area.filter((item) => item.ID !== id));
-        Swal.fire({
-          icon: "success",
-          title: `${data.msg}`,
-          text: "Se ha eliminado el Area exitosamente",
-        });
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Ocurrió un error al eliminar el area.",
-        });
+
+
+  const delete_AREA = async (id) => {
+
+    Swal.fire({
+      title: 'Desea Eliminar el Registro?',
+      text: "Esta Acción no se podrá revertir",
+      icon: 'warning',
+      showCancelButton: true,
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si, Eliminar!'
+    }).then((result) => {
+      debugger
+      if (result.isConfirmed) {
+        axios.delete(`/api/AREA/${id}`, {headers: { Authorization: `Bearer ${token}` }})
+          .then(function (response) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Registro Eliminado!',
+              showConfirmButton: false,
+              timer: 1500,
+
+            })
+            setArea(area.filter((item) => item.ID !== id))
+          },)
+          .catch(function (error) {
+            if (error.request["status"] == 404) {
+              
+              Swal.fire({
+                icon: 'error',
+                title: "No espoble eliminar este registro porque contiene dependencias",
+                showConfirmButton: false,
+                timer: 3000
+              })
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: error.request["status"],
+                showConfirmButton: false,
+                timer: 1500
+              })
+            }
+
+          });
       }
-    } catch (error) {
-      console.log(error.message);
-    }
+    })
+
   };
 
   const handleFilter = (e) => {
     const searchValue = e.target.value.toLowerCase();
     const newData = filterArea.filter(
-      (item) =>
-        item.NOMBRE.toLowerCase().includes(searchValue) ||
-        item.DESCRIPCION.toLowerCase().includes(searchValue)
+      (row) =>
+        row.NOMBRE.toLowerCase().includes(searchValue) ||
+        row.DESCRIPCION.toLowerCase().includes(searchValue)||
+        row.NOMBRE_PROYECTO.toLowerCase().includes(searchValue)||
+        row.NOMBRE_SUBPROYECTO.toLowerCase().includes(searchValue) 
     );
     setArea(newData);
     if (searchValue === "") {
@@ -191,7 +212,7 @@ const Area = () => {
     <div className="container">
       <div className="row">
         <div className="col-md-12">
-          <span className="titless text-center">Consulta de Area</span>
+          <span className="titless text-center">Area</span>
         </div>
         <div className="col-md-12">
           <div className="tab-contentAct card shadow">

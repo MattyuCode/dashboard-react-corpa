@@ -3,7 +3,6 @@ import "./App.css";
 import Dashboard from "./components/Home/Dashboard";
 import Navbar from "./components/Pages/Navbar/Navbar";
 import NavTop from "./components/Pages/Header/NavTop";
-import Utilities from "./components/Pages/Utilities/Utilities";
 import Login from "./components/Auth/Login";
 import Mantenimiento from "./components/Pages/Mantemiento/Mantenimiento";
 
@@ -38,14 +37,24 @@ import DetailsParte from "./components/Pages/Mantemiento/Parte/Detalles/DetailsP
 import EditParte from "./components/Pages/Mantemiento/Parte/Edit/EditParte";
 
 import Proyecto from "./components/Pages/Mantemiento/Proyecto/Proyecto";
-
 import CreateProyecto from "./components/Pages/Mantemiento/Proyecto/create/CreateProyecto";
 import CreateSubProyecto from "./components/Pages/Mantemiento/Proyecto/create/CreateSubProyecto";
+import CreateSubArea from "./components/Pages/Mantemiento/SubArea/create/CreateSubArea";
 import DetailsProyect from "./components/Pages/Mantemiento/Proyecto/Detalle/DetailsProyect"
+import DetailsSubArea from "./components/Pages/Mantemiento/SubArea/Detalle/DetailsSubArea"
 import SubArea from "./components/Pages/Mantemiento/SubArea/SubArea";
-import Tarea from "./components/Pages/Mantemiento/Tarea/Tarea";
+
+import Tarea from "./components/Pages/Procesos/Tarea/Tarea";
+import CreateTarea from "./components/Pages/Procesos/Tarea/Create/CreateTarea";
+import EditTarea from "./components/Pages/Procesos/Tarea/Edit/EditTarea";
+import DetailsTarea from "./components/Pages/Procesos/Tarea/Detalles/DetailsTarea";
+
+
+
 import { Theme } from "./components/JS/Theme";
 import { useEffect, useState } from "react";
+import DetallesSubTarea from "./components/Pages/Procesos/Tarea/Detalles/DetallesSubTarea";
+import EditarSubtarea from "./components/Pages/Procesos/Tarea/Detalles/editarSubtarea";
 
 
 function App() {
@@ -115,13 +124,20 @@ function App() {
                   <Route path="/proyecto" element={<Proyecto />} />
                   <Route path="/crearProyecto/:ID" element={<CreateProyecto />} />
                   <Route path="/crearSubProyecto/:ID/:IDSUBPROYECTO/:OPERACION" element={<CreateSubProyecto />} />
+                  <Route path="/crearSubArea/:ID" element={<CreateSubArea />} />
                   <Route path="/DetailsProyect/:ID" element={<DetailsProyect />} />
-                  
+                  <Route path="/DetailsSubArea/:ID" element={<DetailsSubArea />} />
                   <Route path="/subarea" element={<SubArea />} />
 
                   <Route path="/tarea" element={<Tarea />} />
+                  <Route path="/createTarea" element={<CreateTarea />} />
+                  <Route path="/editarTarea/:ID" element={<EditTarea />} />
+                  <Route path="/detailsTarea/:noCia/:ID" element={<DetailsTarea />} />
+                
+                  <Route path="/detallessubtarea/:ID" element={<DetallesSubTarea/>}/>
+                  <Route path="/EditarSubtarea/:ID/:IDSUBTAREA/:BYID" element={<EditarSubtarea/>}/>
 
-                  <Route path="/Utilities" element={<Utilities />} />
+                  {/* <Route path="/Utilities" element={<Utilities />} /> */}
                   <Route path="/mantenimiento" element={<Mantenimiento />} />
                 </Routes>
               </div>
