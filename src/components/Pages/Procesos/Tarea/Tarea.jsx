@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { FormControl } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import Swal from "sweetalert2";
+//import Swal from "sweetalert2";
+import Swal from 'sweetalert2/dist/sweetalert2.all.js'//ESTO POR SI NO FUNCIONA EL ALERT CON EL CAMBIO QUE HIZO EDUARDO 😁😂
 import DataTable from "react-data-table-component";
 import { AiFillEdit, AiOutlinePlus, AiTwotoneDelete } from "react-icons/ai";
 import { BiDetail } from "react-icons/bi";
