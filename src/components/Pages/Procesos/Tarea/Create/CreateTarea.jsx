@@ -1,9 +1,9 @@
 import { IoArrowBackOutline } from "react-icons/io5";
 import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import "react-toastify/dist/ReactToastify.css";
 import { TokenANDnoCia } from "../../../../Utilities/TokenANDnoCia";
 import { API_Services } from "../../../../Config/APIService";
 
