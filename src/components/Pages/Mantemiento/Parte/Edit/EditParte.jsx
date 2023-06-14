@@ -1,35 +1,123 @@
 import { IoArrowBackOutline } from "react-icons/io5";
 import { useState, useEffect } from "react";
-import { API_Services } from "../../../../../Config/APIService";
 import { ToastContainer, toast } from "react-toastify";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import "react-toastify/dist/ReactToastify.css";
-
+import { API_Services } from "../../../../Config/APIService";
+import { TokenANDnoCia } from "../../../../Utilities/TokenANDnoCia";
+import axios from 'axios';
+import Select from "react-select";
 const EditParte = () => {
+
+
   const { ID } = useParams();
-  const [listEquipo, setListEquipo] = useState([]);
-  const [selectIdEquipo, setselectIdEquipo] = useState("");
+
   const [form, setForm] = useState({
     nombre: "",
     descripcion: "",
   });
-  const noCia = localStorage.getItem("NO_CIA");
-  const token = localStorage.getItem("accessToken");
+  const { noCia, token } = TokenANDnoCia();
   const usenavigate = useNavigate();
 
+
+
+  const [proyecto, setProyecto] = useState([]);
+  const [selectedIdProyecto, setSelectedIdProyecto] = useState("");
+
+  const [subproyecto, setSubProyecto] = useState([]);
+  const [selectedIdSubProyecto, setSelectedIdSubProyecto] = useState("");
+
+  const [area, setArea] = useState([]);
+  const [selectedIdArea, setSelectedIdArea] = useState("");
+
+  const [subArea, setSubArea] = useState([]);
+  const [selectedIdSubArea, setSelectedIdSubArea] = useState("");
+
+  const [Equipo, setEquipo] = useState([]);
+  const [selectedIdEquipo, setSelectedIdEquipo] = useState("");
+
+
   useEffect(() => {
-    const apiListEquipo = async () => {
+    const fetchApiProyecto = async () => {
       try {
-        const response = await fetch(`${API_Services}/EQUIPO/Select/${noCia}`, {
+        const url =
+          `${axios.getUri()}/api/PROYECTO/Select/${noCia}`;
+
+        const response = await fetch(url, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await response.json();
-        setListEquipo(data);
+        setProyecto(data);
+
+
       } catch (error) {
         console.log(error);
       }
     };
+    fetchApiProyecto();
+  }, [noCia, token]);
+
+
+
+
+  async function fetchApiSubProyecto(idproyecto) {
+    try {
+      const response = await fetch(
+        `${API_Services}/SUBPROYECTO/Select/${noCia}/${idproyecto}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await response.json();
+      setSubProyecto(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  async function fetchApiArea(idsubproyecto) {
+    try {
+      const response = await fetch(
+        `${API_Services}/AREA/SelectIdSubProyecto/${noCia}/${idsubproyecto}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await response.json();
+      setArea(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+  async function fetchApiSubArea(idarea) {
+    try {
+      const response = await fetch(
+        `${API_Services}/SUBAREA/SelectIdArea/${noCia}/${idarea}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await response.json();
+      setSubArea(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  async function fetchApiEquipo(idsubarea) {
+    try {
+      const response = await fetch(
+        `${API_Services}/EQUIPO/SelectIdSubarea/${noCia}/${idsubarea}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await response.json();
+      setEquipo(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+
+  useEffect(() => {
+
 
     const fetApiParte = async () => {
       try {
@@ -38,19 +126,129 @@ const EditParte = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const data = await response.json();
+        debugger
         setForm({
           nombre: data[0].NOMBRE_PARTE,
           descripcion: data[0].DESCRIPCION_PARTE,
         });
-        setselectIdEquipo(data[0].ID_EQUIPO);
+        setSelectedIdProyecto(data[0].ID_PROYECTO)
+        fetchApiSubProyecto(data[0].ID_PROYECTO)
+        setSelectedIdSubProyecto(data[0].ID_PROYECTO)
+        fetchApiArea(data[0].ID_SUBPROYECTO)
+        setSelectedIdArea(data[0].ID_AREA)
+        fetchApiSubArea(data[0].ID_AREA)
+        setSelectedIdSubArea(data[0].ID_SUBAREA)
+        fetchApiEquipo(data[0].ID_SUBAREA)
+        setSelectedIdEquipo(data[0].ID_EQUIPO);
       } catch (error) {
         console.log(error);
       }
     };
 
-    apiListEquipo();
+
     fetApiParte();
   }, [ID, noCia, token]);
+
+
+
+
+
+
+  //sirve para recorrer el arreglo y formar las opciones  del input select
+  const ListProyecto = proyecto.map((proyecto) => {
+
+    return {
+      value: proyecto.ID,
+      label: proyecto.NOMBRE
+    }
+  }
+  );
+  const selectedOptionProyecto = ListProyecto.find(proyecto => proyecto.value == selectedIdProyecto);
+
+  const GETIDPROYECTO = ({ value }) => {
+    setSelectedIdSubProyecto("")
+    fetchApiSubProyecto(value);
+    setSelectedIdProyecto(value)
+
+  }
+
+  const ListSubProyecto = subproyecto.map((subproyecto) => {
+
+    return {
+      value: subproyecto.ID,
+      label: subproyecto.NOMBRE
+    }
+  }
+  );
+
+  const selectedOptionSubProyecto = ListSubProyecto.find(subproyecto => subproyecto.value == selectedIdSubProyecto);
+
+  const GETIDSUBPROYECTO = ({ value }) => {
+    setSelectedIdArea("")
+    fetchApiArea(value);
+    setSelectedIdSubProyecto(value)
+
+  }
+
+  const ListArea = area.map((AREA) => {
+
+    return {
+      value: AREA.ID,
+      label: AREA.NOMBRE
+    }
+  }
+  );
+
+  const selectedOptionArea = ListArea.find(AREA => AREA.value == selectedIdArea);
+
+  const GETIDAREA = ({ value }) => {
+    setSelectedIdSubArea("")
+    fetchApiSubArea(value);
+    setSelectedIdArea(value)
+
+  }
+  const ListSubArea = subArea.map((SUBAREA) => {
+
+    return {
+      value: SUBAREA.ID,
+      label: SUBAREA.NOMBRE
+    }
+  }
+  );
+  //selecciona la opción según el Id dela subarea que trae de la base de datos
+  const selectedOptionSubArea = ListSubArea.find(subArea => subArea.value == selectedIdSubArea);
+
+  //obtiene el ID DE LA OPCIO SELECCIONADA EN EL SELECT SUBTAREAS
+  const GETIDSUBAREA = ({ value }) => {
+    setSelectedIdSubArea("")
+    fetchApiEquipo(value)
+    setSelectedIdSubArea(value)
+
+  }
+
+  const ListEquipo = Equipo.map((EQUIPO) => {
+
+    return {
+      value: EQUIPO.ID,
+      label: EQUIPO.NOMBRE
+    }
+  }
+  );
+  const selectedOptionEquipo = ListEquipo.find(equipo => equipo.value == selectedIdEquipo);
+
+
+  const GETIDEQUIPO = ({ value }) => {
+    setSelectedIdEquipo("")
+
+    setSelectedIdEquipo(value)
+
+  }
+
+
+
+
+
+
 
   const fetchAPIEditar = async (name, idpro, descr) => {
     const requestOptions = {
@@ -94,8 +292,10 @@ const EditParte = () => {
     let result = true;
     if (
       !inputNombre.trim() ||
-      !textAreaDescri.trim() ||
-      selectIdEquipo === ""
+      selectedIdSubProyecto === "" ||
+      selectedIdArea === "" ||
+      selectedIdSubArea === "" ||
+      selectedIdEquipo == ""
     ) {
       result = false;
       console.log("NO hay datos ");
@@ -106,13 +306,13 @@ const EditParte = () => {
       document.getElementById("nombreINP").classList.remove("is-valid");
       document.getElementById("nombreINP").classList.add("is-invalid");
 
-      document.getElementById("inputDes").classList.remove("is-valid");
-      document.getElementById("inputDes").classList.add("is-invalid");
+      // document.getElementById("inputDes").classList.remove("is-valid");
+      //document.getElementById("inputDes").classList.add("is-invalid");
 
       document.getElementById("selectIDO").classList.remove("is-valid");
       document.getElementById("selectIDO").classList.add("is-invalid");
     } else {
-      fetchAPIEditar(form.nombre, selectIdEquipo, form.descripcion);
+      fetchAPIEditar(form.nombre, selectedIdEquipo, form.descripcion);
 
       document.getElementById("nombreINP").classList.remove("is-invalid");
       document.getElementById("nombreINP").classList.add("is-valid");
@@ -134,14 +334,106 @@ const EditParte = () => {
     <div className="container  mt-4">
       <div className="row" style={{ padding: "0 5rem" }}>
         <div className="col-md-12">
-          <span className="titless text-center">Editar Area</span>
+          <span className="titless text-center">Editar Parte</span>
         </div>
 
         <div className="col-md-12 ">
           <div className=" shadow" style={{ padding: " 4rem" }}>
             <form onSubmit={handleInputChange}>
+
               <div className="row">
-                <div className="col-md-7 mb-4">
+
+                <div className="col-md-6 mb-4">
+                  <div className="form-outline">
+                    <label className="form-label">PROYECTO</label>
+                    <Select
+                      defaultValue={{ label: 'SELECCIONAR PROYECTO', value: 'empty' }}
+                      options={ListProyecto}
+                      value={selectedOptionProyecto}
+                      onChange={
+                        GETIDPROYECTO
+                      }
+                      id="selectIDO"
+                      name="idSubArea"
+                      required=""
+                    />
+                  </div>
+                </div>
+
+                <div className="col-md-6 mb-4">
+                  <div className="form-outline">
+                    <label className="form-label">SUBPROYECTO</label>
+                    <Select
+                      defaultValue={{ label: 'SELECCIONAR SUBPROYECTO', value: 'empty' }}
+                      options={ListSubProyecto}
+                      value={selectedOptionSubProyecto}
+                      onChange={
+                        GETIDSUBPROYECTO
+                      }
+                      id="selectIDO"
+                      name="idSubArea"
+                    />
+                  </div>
+                </div>
+              </div>
+
+
+              <div className="row">
+
+                <div className="col-md-6 mb-4">
+                  <div className="form-outline">
+                    <label className="form-label">AREA</label>
+                    <Select
+                      defaultValue={{ label: 'SELECCIONAR AREA', value: 'empty' }}
+                      options={ListArea}
+                      value={selectedOptionArea}
+                      onChange={
+                        GETIDAREA
+                      }
+                      id="selectIDO"
+                      name="idSubArea"
+                    />
+                  </div>
+                </div>
+
+                <div className="col-md-6 mb-4">
+                  <div className="form-outline">
+                    <label className="form-label">SUBAREA</label>
+                    <Select
+                      defaultValue={{ label: 'SELECCIONAR SUBAREA', value: 'empty' }}
+                      options={ListSubArea}
+                      value={selectedOptionSubArea}
+                      onChange={
+                        GETIDSUBAREA
+                      }
+                      id="selectIDO"
+                      name="idSubArea"
+                    />
+                  </div>
+                </div>
+              </div>
+
+
+
+
+
+              <div className="row">
+
+                <div className="col-md-6 mb-4">
+                  <label className="form-label">EQUIPO</label>
+                  <Select
+                    defaultValue={{ label: 'SELECCIONAR EQUIPO', value: 'empty' }}
+                    options={ListEquipo}
+                    value={selectedOptionEquipo}
+                    onChange={
+                      GETIDEQUIPO
+                    }
+
+                    name="idSubArea"
+                  />
+                </div>
+
+                <div className="col-md-6 mb-4">
                   <div className="form-outline">
                     <label className="form-label">NOMBRE</label>
                     <input
@@ -157,23 +449,7 @@ const EditParte = () => {
                   </div>
                 </div>
 
-                <div className="col-md-5 mb-4">
-                  <label className="form-label">EQUIPO</label>
-                  <select
-                    className="form-select"
-                    value={selectIdEquipo}
-                    id="selectIDO"
-                    name="idSubproyecto"
-                    onChange={(e) => setselectIdEquipo(e.target.value)}
-                  >
-                    <option value="DEFAULT">Selecciona un ID</option>
-                    {listEquipo.map((item) => (
-                      <option key={item.ID} value={item.ID}>
-                        {item.NOMBRE}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+
               </div>
 
               <div className="row">

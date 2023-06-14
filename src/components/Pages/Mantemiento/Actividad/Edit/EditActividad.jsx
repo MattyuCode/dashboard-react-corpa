@@ -1,22 +1,22 @@
 import { IoArrowBackOutline } from "react-icons/io5";
 import { useState, useEffect } from "react";
-// import "./CreateActividad.css";
-import { API_Services } from "../../../../../Config/APIService";
 import { ToastContainer, toast } from "react-toastify";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import "react-toastify/dist/ReactToastify.css";
+import { TokenANDnoCia } from "../../../../Utilities/TokenANDnoCia";
+import { API_Services } from "../../../../Config/APIService";
+
 
 const EditActividad = () => {
   const { ID } = useParams();
+  const { noCia, token } = TokenANDnoCia();
   const [subProyectos, setSubProyectos] = useState([]);
   const [selectedIdSubProyectos, setSelectedIdSubProyectos] = useState("");
   const [form, setForm] = useState({
     nombre: "",
     descripcion: "",
-  });
-  const noCia = localStorage.getItem("NO_CIA");
-  const token = localStorage.getItem("accessToken");
+  }); 
   const usenavigate = useNavigate();
 
   useEffect(() => {
@@ -96,7 +96,7 @@ const EditActividad = () => {
     let result = true;
     if (
       !inputNombre.trim() ||
-      !textAreaDescri.trim() ||
+      //!textAreaDescri.trim() ||
       selectedIdSubProyectos === ""
     ) {
       result = false;
@@ -108,8 +108,8 @@ const EditActividad = () => {
       document.getElementById("nombreINP").classList.remove("is-valid");
       document.getElementById("nombreINP").classList.add("is-invalid");
 
-      document.getElementById("inputDes").classList.remove("is-valid");
-      document.getElementById("inputDes").classList.add("is-invalid");
+     // document.getElementById("inputDes").classList.remove("is-valid");
+     // document.getElementById("inputDes").classList.add("is-invalid");
 
       document.getElementById("selectIDO").classList.remove("is-valid");
       document.getElementById("selectIDO").classList.add("is-invalid");
