@@ -21,9 +21,10 @@ import { VscLayersActive } from "react-icons/vsc";
 import { IoMdClose } from "react-icons/io";
 import { useEffect, useContext, useState } from "react";
 import Li from "./NavIconTitle/Li";
-import { API } from "../helpers/APIs";
+import { API } from "../../helpers/APIs";
 import { Collapse } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import jwt_decode from "jwt-decode";
 
 const Navbar = () => {
   const [nav, setnav] = useState(localStorage.getItem("active") === "true");
@@ -32,6 +33,9 @@ const Navbar = () => {
   const [activeIndex, setActiveIndex] = useState(false);
   const [menuData, setMenuData] = useState({ groups: {}, pathMenus: {} });
   const { DarkTheme, setDarkTheme } = useContext(Theme);
+  const token = localStorage.getItem("accessToken");
+  const token_jwt_decode = jwt_decode(token);
+  const fechaActual = new Date();
 
   const usenavigate = useNavigate();
   const toggleCollapse = () => setIsOpen(!isOpen);
@@ -43,20 +47,28 @@ const Navbar = () => {
 
   //Llamando la API
   useEffect(() => {
-    API(localStorage.getItem("accessToken")).then((response) => {
-      setMenuData(response);
-      setMenuItems(
-        Object.keys(response.groups).map((key) => ({
-          title: key,
-          items: response.groups[key],
-          //.map((submenu) => ({
-          //   title: submenu,
-          //   path: response.pathMenus[submenu],
-          // })),
-        }))
-      );
-    });
-  }, []);
+    if (token_jwt_decode.exp * 1000 < fechaActual.getTime()) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("USERS");
+      localStorage.removeItem("NO_CIA");
+      localStorage.removeItem("USERS");
+      window.location.href = "/Login";
+    } else {
+      API(token).then((response) => {
+        setMenuData(response);
+        setMenuItems(
+          Object.keys(response.groups).map((key) => ({
+            title: key,
+            items: response.groups[key],
+            //.map((submenu) => ({
+            //   title: submenu,
+            //   path: response.pathMenus[submenu],
+            // })),
+          }))
+        );
+      });
+    }
+  }, [token, fechaActual, token_jwt_decode.exp]);
 
   function handleItemClick(paginas) {
     const subMenuName = menuData.pathMenus[paginas];
@@ -96,7 +108,11 @@ const Navbar = () => {
         </li> */}
 
       <Link to="/">
-        <Li title={"Dashboard"} Icon={HiHome} />
+        <Li
+          className="text-decoration-none"
+          title={"Dashboard"}
+          Icon={HiHome}
+        />
       </Link>
 
       <hr className="sidebar-divider" />
@@ -137,7 +153,7 @@ const Navbar = () => {
         ))}
       </div>
 
-      <Li Icon={FiMessageSquare} title={"Messages"} />
+      {/*  <Li Icon={FiMessageSquare} title={"Messages"} />
       <Li Icon={AiOutlineUsergroupAdd} title={"Followers"} />
 
       <div className="divider"></div>
@@ -152,16 +168,15 @@ const Navbar = () => {
       <Li Icon={TbFileUpload} title={"Posts"} />
       <Li Icon={BiMessageAltAdd} title={"Message Requests"} />
       <Li Icon={AiOutlineUserSwitch} title={"Change Account"} />
-
-      <div className="divider"></div>
+*/}
+      {/* <div className="divider"></div>
 
       <Li
         Icon={CgDarkMode}
         title={`${DarkTheme ? "LightMode" : "DarkMode"}`}
         onClick={changeTheme}
-      />
-
-      <Li Icon={BiDotsHorizontalRounded} title={"More"} />
+      /> */}
+      {/*  <Li Icon={BiDotsHorizontalRounded} title={"More"} /> */}
     </div>
   );
 };

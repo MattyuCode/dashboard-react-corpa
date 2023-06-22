@@ -4,22 +4,18 @@ import "react-toastify/dist/ReactToastify.css";
 import logo from "../../assets/CORPACAM.png";
 import { useState } from "react";
 import md5 from "md5";
-// import { useNavigate } from "react-router-dom";
+import { API_Services } from "../Config/APIService";
 
 export default function Login() {
-  // const usenavigate = useNavigate();
-
+  const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
     username: "",
     password: "",
     loading: false,
   });
 
-  const url = "https://apiproyectosdesarrollo.corpacam.com.gt";
   const fetchData = async (user, pass) => {
-    const Method = "/api/Login";
-
-    const respon = await fetch(url + Method, {
+    const respon = await fetch(`${API_Services}/Login`, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -41,14 +37,15 @@ export default function Login() {
       toast.error(data.msg, {
         theme: "colored",
       });
+      setForm({ ...form, loading: false });
     } else {
       // usenavigate("/Dashboard");
-      window.location.href = "/";
-      console.log(data["access_token"]);
+        window.location.href = "/";
+      // console.log(data["access_token"]);
       localStorage.setItem("NO_CIA", data.no_cia);
       localStorage.setItem("accessToken", data["access_token"]);
       localStorage.setItem("USERS", data.usuario);
-      localStorage.setItem("NO_CIA",data.no_cia);
+      localStorage.setItem("NO_CIA", data.no_cia);
     }
   };
 
@@ -72,11 +69,16 @@ export default function Login() {
     return result;
   };
 
+  const handlePasswordChange = (e) => {
+    setForm({ ...form, password: e.target.value });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <section className="sect">
-      {/* <div className="spinner-grow" role="status">
-        <span className="sr-only">Loading...</span>
-      </div> */}
       <div className="formu">
         <img src={logo} alt="Descripción de la imagen" />
         <form onSubmit={enviarDatos}>
@@ -99,14 +101,17 @@ export default function Login() {
             <span className="spPass">Contraseña:</span>
             <input
               className="form-control inptpassword"
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={form.password}
-              onChange={(e) => {
-                setForm({ ...form, password: e.target.value });
-              }}
+              onChange={handlePasswordChange}
             />
             <i className="fas fa-lock icnos" style={{ margin: "0 5px" }}></i>
-            <i className="fas fa-eye-slash iconVer"></i>
+            <i
+              className={`fas ${
+                showPassword ? "fa-eye" : "fa-eye-slash"
+              } iconVer`}
+              onClick={togglePasswordVisibility}
+            ></i>
           </label>
           <br />
           <button
@@ -120,7 +125,8 @@ export default function Login() {
                   className="spinner-border spinner-border-sm"
                   role="status"
                   aria-hidden="true"
-                />&nbsp;          {"Iniciando Session..."}
+                />
+                &nbsp; {"Iniciando Session..."}
               </>
             ) : (
               "Iniciar Sesión"
