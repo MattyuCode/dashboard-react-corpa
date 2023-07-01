@@ -1,6 +1,7 @@
 import { IoArrowBackOutline } from "react-icons/io5";
 import { useState, useEffect } from "react";
-import { API_Services } from "../../../../../Config/APIService";
+import { API_Services } from "../../../../Config/APIService";
+import { TokenANDnoCia } from "../../../../Utilities/TokenANDnoCia";
 import { ToastContainer, toast } from "react-toastify";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -8,14 +9,14 @@ import "react-toastify/dist/ReactToastify.css";
 
 const EditAdvertencia = () => {
   const { ID } = useParams();
+  const { noCia, token } = TokenANDnoCia();
   const [subProyectos, setSubProyectos] = useState([]);
   const [selectedIdSubProyectos, setSelectedIdSubProyectos] = useState("");
   const [form, setForm] = useState({
     nombre: "",
     descripcion: "",
   });
-  const noCia = localStorage.getItem("NO_CIA");
-  const token = localStorage.getItem("accessToken");
+
   const usenavigate = useNavigate();
 
   useEffect(() => {
@@ -28,7 +29,6 @@ const EditAdvertencia = () => {
         const data = await response.json();
         setSubProyectos(data);
       } catch (error) {
-        console.log(error);
       }
     };
 
@@ -45,7 +45,6 @@ const EditAdvertencia = () => {
         });
         setSelectedIdSubProyectos(data[0].ID_SUBPROYECTO);
       } catch (error) {
-        console.log(error);
       }
     };
 
@@ -75,7 +74,6 @@ const EditAdvertencia = () => {
         requestOptions
       );
       const data = await response.json();
-      console.log(data);
       Swal.fire({
         icon: "success",
         title: "Advertencia actualizada",
@@ -84,7 +82,6 @@ const EditAdvertencia = () => {
         usenavigate("/lugarAdvertencia");
       });
     } catch (error) {
-      console.log(error);
     }
   };
 
@@ -95,11 +92,10 @@ const EditAdvertencia = () => {
     let result = true;
     if (
       !inputNombre.trim() ||
-      !textAreaDescri.trim() ||
+     // !textAreaDescri.trim() ||
       selectedIdSubProyectos === ""
     ) {
       result = false;
-      console.log("NO hay datos ");
       toast.error("Todos los campos son obligatorios", {
         theme: "colored",
       });
@@ -107,8 +103,8 @@ const EditAdvertencia = () => {
       document.getElementById("nombreINP").classList.remove("is-valid");
       document.getElementById("nombreINP").classList.add("is-invalid");
 
-      document.getElementById("inputDes").classList.remove("is-valid");
-      document.getElementById("inputDes").classList.add("is-invalid");
+     // document.getElementById("inputDes").classList.remove("is-valid");
+     // document.getElementById("inputDes").classList.add("is-invalid");
 
       document.getElementById("selectIDO").classList.remove("is-valid");
       document.getElementById("selectIDO").classList.add("is-invalid");
@@ -123,7 +119,6 @@ const EditAdvertencia = () => {
 
       document.getElementById("selectIDO").classList.remove("is-invalid");
       document.getElementById("selectIDO").classList.add("is-valid");
-      console.log("Se enviaron los datos correctamente");
       toast.success("Advertencia actualizado exitosamente", {
         theme: "colored",
       });

@@ -51,8 +51,22 @@
     height: 200px;
     width: 200px;
     border-radius: 50%;
-    background: linear-gradient(90deg, #268a2a, #0082d8);
-    transform: translate(-310px, -100px);
+    background: linear-gradient(90deg,  #0082d8, #12831459);
+    animation: floating 5s ease-in-out infinite alternate;
+}
+
+@keyframes floating {
+    0% {
+        transform: translate(-310px, -100px);
+    }
+
+    50% {
+        transform: translate(-290px, -120px);
+    }
+
+    100% {
+        transform: translate(-310px, -100px);
+    }
 }
 
 .sect::after {
@@ -61,9 +75,24 @@
     height: 200px;
     width: 200px;
     border-radius: 50%;
-    background: linear-gradient(150deg, #268a2a, #0082d8);
+    background: linear-gradient(150deg, #12831459, #0082d8);
     transform: translate(310px, 100px);
     z-index: 0;
+    animation: floating2 5s ease-in-out infinite alternate;
+}
+
+@keyframes floating2 {
+    0% {
+        transform: translate(310px, 100px);
+    }
+
+    50% {
+        transform: translate(290px, 120px);
+    }
+
+    100% {
+        transform: translate(310px, 100px);
+    }
 }
 
 .form-control:focus {
@@ -72,11 +101,12 @@
     box-shadow: none;
 }
 
-.btn-check:focus+.botonSess, .botonSess:focus {
+.btn-check:focus+.botonSess,
+.botonSess:focus {
     color: #fff;
     background-color: #4caf50;
     border-color: #4caf50;
-    box-shadow: 0 0 0 0.25rem rgba(49,132,253,.5);
+    box-shadow: 0 0 0 0.25rem rgba(49, 132, 253, .5);
 }
 
 
@@ -109,10 +139,12 @@ label span {
     border-bottom: 2px solid #aaaa !important;
     transition: all 0.2s ease;
 }
-.InptText{
+
+.InptText {
     padding: 8px 30px;
 
 }
+
 .inptpassword {
     padding: 8px 45px 8px 30px;
 }

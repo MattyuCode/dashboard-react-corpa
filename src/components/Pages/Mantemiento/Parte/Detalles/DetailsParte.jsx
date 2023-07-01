@@ -1,11 +1,11 @@
 import { Link, useParams } from "react-router-dom";
-import { API_Services } from "../../../../../Config/APIService";
 import { useEffect, useState } from "react";
 import { IoArrowBackOutline } from "react-icons/io5";
+import { API_Services } from "../../../../Config/APIService";
+import { TokenANDnoCia } from "../../../../Utilities/TokenANDnoCia";
 
 const DetailsParte = () => {
-  const token = localStorage.getItem("accessToken");
-  const noCia = localStorage.getItem("NO_CIA");
+  const { noCia, token } = TokenANDnoCia();
   const { ID } = useParams();
   const [parteDetalles, setParteDetalles] = useState([]);
 
@@ -17,7 +17,6 @@ const DetailsParte = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const data = await response.json();
-        console.log(data)
         setParteDetalles(data);
       } catch (error) {
         console.error(error);

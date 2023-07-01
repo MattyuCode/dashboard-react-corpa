@@ -1,0 +1,9 @@
+.formuTarea{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+#nombreINP{
+    flex: 1 0 130px;
+}

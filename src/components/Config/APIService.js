@@ -1,0 +1,1 @@
+export const API_Services = 'https://apiproyectosdesarrollo.corpacam.com.gt/api';

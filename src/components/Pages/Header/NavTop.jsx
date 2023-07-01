@@ -1,5 +1,5 @@
 import { Theme } from "../../JS/Theme";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { BiSearch } from "react-icons/bi";
 import { AiFillYoutube, AiFillGithub } from "react-icons/ai";
 // import { RiSettingsLine } from "react-icons/ri";
@@ -7,23 +7,49 @@ import { IoLogoFacebook } from "react-icons/io5";
 // import { TbMessages } from "react-icons/tb";
 import { FiLogOut } from "react-icons/fi";
 import profileImg from "../../../assets/CORPACAM.png";
-
 import { HiOutlineMoon, HiSun } from "react-icons/hi";
 import "./NavTop.css";
+import { API_Services } from "../../Config/APIService";
+import { TokenANDnoCia } from "../../Utilities/TokenANDnoCia";
 
 const NavTop = () => {
   const { DarkTheme, setDarkTheme } = useContext(Theme);
   const changeTheme = () => setDarkTheme(!DarkTheme);
+  const { noCia, token } = TokenANDnoCia();
   const [usuario, setUsuario] = useState(localStorage.getItem("USERS"));
+ // const [listProyectos, setProyectos] = useState([]);
+  //const [selectedIdProyectos, setSelectedIdProyectos] = useState("");
+ // const [subProyectos, setSubProyectos] = useState([]);
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("USERS");
     localStorage.removeItem("NO_CIA");
     setUsuario(null);
-    console.log("Funcionando");
     window.location.href = "/Login";
   };
+
+ /* useEffect(() => {
+    const APIs = async () => {
+      try {
+
+        const url = `${API_Services}/PROYECTO/Select/${noCia}`;
+            const response = await fetch(url, {
+              headers: { Authorization: `Bearer ${accessToken}` },
+            });
+            const data = await response.json();
+ 
+        const [proyectos, subproyectos] = data;
+        setProyectos(proyectos.sort((a, b) => a.ID - b.ID));
+        setSubProyectos(subproyectos.sort((a, b) => a.ID - b.ID));
+
+      } catch (error) {
+        
+      }
+    };
+
+    APIs();
+  }, [noCia, token, selectedIdProyectos]);*/
 
   return (
     <div className={`d-flex flex-column content-wrapper`}>
@@ -40,15 +66,36 @@ const NavTop = () => {
             <i className="fa fa-bars"></i>
           </button>
 
-          <form className="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+          {/* <form className="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
             <div className="search-bar">
               <input type="text" placeholder="search..." />
               <BiSearch className="icon" />
             </div>
-          </form>
+          </form> */}
 
+          {/* <ul className="navbar-nav mr-auto">
+            <select
+              className="form-select"
+              name=""
+              id=""
+              value={selectedIdProyectos}
+              onChange={(e) => setSelectedIdProyectos(e.target.value)}
+            >
+              <option value="DEFAULT">Selecciona un Proyecto</option>
+              {listProyectos.map((proyecto) => (
+                <optgroup label={proyecto.DESCRIPCION} key={proyecto.ID}>
+                  {subProyectos.map((subproyecto) => (
+                    <option value={subproyecto.ID} key={subproyecto.ID}>
+                      {subproyecto.NOMBRE}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </ul> */}
+
+          <div className="topbar-divider d-none d-sm-block"></div>
           <ul className="navbar-nav ml-auto">
-            <div className="topbar-divider d-none d-sm-block"></div>
             <div className="tools">
               {/* <a
                 href="https://github.com"
@@ -72,15 +119,14 @@ const NavTop = () => {
               >
                 <IoLogoFacebook className="icon" />
               </a> */}
-
-              <div className="divider"></div>
+              {/* <div className="divider"></div> */}
 
               {/* <HiOutlineMoon className="icon" onClick={changeTheme} /> */}
-              {DarkTheme ? (
+              {/* {DarkTheme ? (
                 <HiSun className="icon" onClick={changeTheme} />
               ) : (
                 <HiOutlineMoon className="icon" onClick={changeTheme} />
-              )}
+              )} */}
               {/* <RiSettingsLine className="icon" /> */}
               <FiLogOut className="icon" onClick={handleLogout} />
 
