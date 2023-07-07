@@ -126,7 +126,7 @@ const Navbar = () => {
                 <Li Icon={VscLayersActive} title={"Actividades"} />
               </Link>
             </li>
-        </Collapse>
+       // </Collapse>
 
             <li className="l-i">
               <Link to="/area">
