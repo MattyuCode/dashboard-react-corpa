@@ -1,3 +1,4 @@
+```
 import { Link } from "react-router-dom";
 import { Theme } from "../../JS/Theme";
 import "./Navbar.css";
