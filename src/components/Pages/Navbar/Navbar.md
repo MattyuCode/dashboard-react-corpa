@@ -1,4 +1,3 @@
-```
 import { Link } from "react-router-dom";
 import { Theme } from "../../JS/Theme";
 import "./Navbar.css";
@@ -126,7 +125,7 @@ const Navbar = () => {
                 <Li Icon={VscLayersActive} title={"Actividades"} />
               </Link>
             </li>
-       // </Collapse>
+        </Collapse>
 
             <li className="l-i">
               <Link to="/area">

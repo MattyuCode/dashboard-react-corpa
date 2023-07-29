@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { API_Services } from "../../../../../Config/APIService";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { Link, useParams } from "react-router-dom";
+import { TokenANDnoCia } from "../../../../Utilities/TokenANDnoCia";
+import { API_Services } from "../../../../Config/APIService";
+
 
 const DetailsEquipo = () => {
-  const token = localStorage.getItem("accessToken");
-  const noCia = localStorage.getItem("NO_CIA");
+  const { noCia, token } = TokenANDnoCia();
   const { ID } = useParams();
   const [EquipoDetalles, setEquipoDetalles] = useState([]);
 
@@ -17,7 +18,7 @@ const DetailsEquipo = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const data = await response.json();
-        console.log(data);
+        
         setEquipoDetalles(data);
       } catch (error) {
         console.error(error);

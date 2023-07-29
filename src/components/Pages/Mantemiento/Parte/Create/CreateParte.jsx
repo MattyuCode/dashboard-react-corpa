@@ -1,37 +1,219 @@
 import { IoArrowBackOutline } from "react-icons/io5";
 import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { API_Services } from "../../../../../Config/APIService";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import "react-toastify/dist/ReactToastify.css";
+import { API_Services } from "../../../../Config/APIService";
+import { TokenANDnoCia } from "../../../../Utilities/TokenANDnoCia";
+import axios from 'axios';
+import Select from "react-select";
 
 const CreateParte = () => {
-  const [listEquipo, setListEquipo] = useState([]);
-  const [selectIdEquipo, setselectIdEquipo] = useState("");
+
+  const [proyecto, setProyecto] = useState([]);
+  const [selectedIdProyecto, setSelectedIdProyecto] = useState("");
+
+  const [subproyecto, setSubProyecto] = useState([]);
+  const [selectedIdSubProyecto, setSelectedIdSubProyecto] = useState("");
+
+  const [area, setArea] = useState([]);
+  const [selectedIdArea, setSelectedIdArea] = useState("");
+
+  const [subArea, setSubArea] = useState([]);
+  const [selectedIdSubArea, setSelectedIdSubArea] = useState("");
+
+  const [Equipo, setEquipo] = useState([]);
+  const [selectedIdEquipo, setSelectedIdEquipo] = useState("");
+
+
   const [form, setForm] = useState({
     nombre: "",
     descripcion: "",
   });
   const [redirect, setRedirect] = useState(false);
-  const noCia = localStorage.getItem("NO_CIA");
-  const token = localStorage.getItem("accessToken");
+  const { noCia, token } = TokenANDnoCia();
   const usenavigate = useNavigate();
 
+
+
+
+
   useEffect(() => {
-    const apiListEquipo = async () => {
+    const fetchApiProyecto = async () => {
       try {
-        const response = await fetch(`${API_Services}/EQUIPO/Select/${noCia}`, {
+        const url =
+          `${axios.getUri()}/api/PROYECTO/Select/${noCia}`;
+
+        const response = await fetch(url, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await response.json();
-        setListEquipo(data);
+        setProyecto(data);
+
+
       } catch (error) {
-        console.log(error);
+      
       }
     };
-    apiListEquipo();
+    fetchApiProyecto();
   }, [noCia, token]);
+
+
+
+
+  async function fetchApiSubProyecto(idproyecto) {
+    try {
+      const response = await fetch(
+        `${API_Services}/SUBPROYECTO/Select/${noCia}/${idproyecto}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await response.json();
+      setSubProyecto(data);
+    } catch (error) {
+      
+    }
+  };
+
+  async function fetchApiArea(idsubproyecto) {
+    try {
+      const response = await fetch(
+        `${API_Services}/AREA/SelectIdSubProyecto/${noCia}/${idsubproyecto}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await response.json();
+      setArea(data);
+    } catch (error) {
+     
+    }
+  };
+
+
+  async function fetchApiSubArea(idarea) {
+    try {
+      const response = await fetch(
+        `${API_Services}/SUBAREA/SelectIdArea/${noCia}/${idarea}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await response.json();
+      setSubArea(data);
+    } catch (error) {
+      
+    }
+  };
+
+
+  async function fetchApiEquipo(idsubarea) {
+    try {
+      const response = await fetch(
+        `${API_Services}/EQUIPO/SelectIdSubarea/${noCia}/${idsubarea}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await response.json();
+      setEquipo(data);
+    } catch (error) {
+      
+    }
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //sirve para recorrer el arreglo y formar las opciones  del input select
+  const ListProyecto = proyecto.map((proyecto) => {
+
+    return {
+      value: proyecto.ID,
+      label: proyecto.NOMBRE
+    }
+  }
+  );
+
+  const GETIDPROYECTO = ({ value }) => {
+
+    setSelectedIdProyecto(value)
+    fetchApiSubProyecto(value);
+
+
+  }
+
+  const ListSubProyecto = subproyecto.map((subproyecto) => {
+
+    return {
+      value: subproyecto.ID,
+      label: subproyecto.NOMBRE
+    }
+  }
+  );
+
+  const GETIDSUBPROYECTO = ({ value }) => {
+
+    setSelectedIdSubProyecto(value)
+    fetchApiArea(value);
+
+
+  }
+
+  const ListArea = area.map((AREA) => {
+
+    return {
+      value: AREA.ID,
+      label: AREA.NOMBRE
+    }
+  }
+  );
+
+  const GETIDAREA = ({ value }) => {
+    setSelectedIdArea(value)
+    fetchApiSubArea(value);
+
+
+  }
+  const ListSubArea = subArea.map((SUBAREA) => {
+
+    return {
+      value: SUBAREA.ID,
+      label: SUBAREA.NOMBRE
+    }
+  }
+  );
+  //obtiene el ID DE LA OPCIO SELECCIONADA EN EL SELECT SUBTAREAS
+  const GETIDSUBAREA = ({ value }) => {
+    setSelectedIdSubArea(value)
+    fetchApiEquipo(value)
+
+  }
+
+  const ListEquipo = Equipo.map((EQUIPO) => {
+
+    return {
+      value: EQUIPO.ID,
+      label: EQUIPO.NOMBRE
+    }
+  }
+  );
+
+  const GETIDEQUIPO = ({ value }) => {
+    setSelectedIdEquipo(value)
+
+
+  }
+
+
 
   const guardarParte = async (name, idArea, descrip) => {
     const requestOptions = {
@@ -54,7 +236,6 @@ const CreateParte = () => {
         requestOptions
       );
       const data = await response.json();
-      console.log(data);
       Swal.fire({
         icon: "success",
         title: "Parte guardada",
@@ -63,7 +244,7 @@ const CreateParte = () => {
         setRedirect(true);
       });
     } catch (error) {
-      console.log(error);
+      
     }
   };
 
@@ -78,8 +259,10 @@ const CreateParte = () => {
     let result = true;
     if (
       !inputNombre.trim() ||
-      !textAreaDescri.trim() ||
-      selectIdEquipo === ""
+      selectedIdSubProyecto === "" ||
+      selectedIdArea === "" ||
+      selectedIdSubArea === "" ||
+      selectedIdEquipo == ""
     ) {
       result = false;
       console.log("NO hay datos ");
@@ -89,14 +272,14 @@ const CreateParte = () => {
       document.getElementById("nombreINP").classList.remove("is-valid");
       document.getElementById("nombreINP").classList.add("is-invalid");
 
-      document.getElementById("inputDes").classList.remove("is-valid");
-      document.getElementById("inputDes").classList.add("is-invalid");
+      //document.getElementById("inputDes").classList.remove("is-valid");
+      // document.getElementById("inputDes").classList.add("is-invalid");
 
       document.getElementById("selectIDO").classList.remove("is-valid");
       document.getElementById("selectIDO").classList.add("is-invalid");
     } else {
-      setForm({ ...form, idSubproyecto: selectIdEquipo });
-      guardarParte(form.nombre, selectIdEquipo, form.descripcion);
+      setForm({ ...form, idSubproyecto: selectedIdEquipo });
+      guardarParte(form.nombre, selectedIdEquipo, form.descripcion);
       toast.success("Parte guardado exitosamente", {
         theme: "colored",
       });
@@ -117,7 +300,7 @@ const CreateParte = () => {
       <div className="row rowALl">
         <div className="col-md-12">
           <span className="text-center titless " style={{}}>
-            Agregar una nueva Parte
+            Agregar  Parte
           </span>
         </div>
 
@@ -125,8 +308,90 @@ const CreateParte = () => {
           <div className="tab-content shadow" style={{ borderRadius: "15px" }}>
             <div className="row  ">
               <form onSubmit={handleInputChange}>
+
                 <div className="row">
-                  <div className="col-md-7 mb-4">
+
+                  <div className="col-md-6 mb-4">
+                    <div className="form-outline">
+                      <label className="form-label">PROYECTO</label>
+                      <Select
+                        defaultValue={{ label: 'SELECCIONAR PROYECTO', value: 'empty' }}
+                        options={ListProyecto}
+                        onChange={
+                          GETIDPROYECTO
+                        }
+                        id="selectIDO"
+                        name="idSubArea"
+                        required=""
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col-md-6 mb-4">
+                    <div className="form-outline">
+                      <label className="form-label">SUBPROYECTO</label>
+                      <Select
+                        defaultValue={{ label: 'SELECCIONAR SUBPROYECTO', value: 'empty' }}
+                        options={ListSubProyecto}
+                        onChange={
+                          GETIDSUBPROYECTO
+                        }
+                        id="selectIDO"
+                        name="idSubArea"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+
+                <div className="row">
+
+                  <div className="col-md-6 mb-4">
+                    <div className="form-outline">
+                      <label className="form-label">AREA</label>
+                      <Select
+                        defaultValue={{ label: 'SELECCIONAR AREA', value: 'empty' }}
+                        options={ListArea}
+                        onChange={
+                          GETIDAREA
+                        }
+                        id="selectIDO"
+                        name="idSubArea"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col-md-6 mb-4">
+                    <div className="form-outline">
+                      <label className="form-label">SUBAREA</label>
+                      <Select
+                        defaultValue={{ label: 'SELECCIONAR SUBAREA', value: 'empty' }}
+                        options={ListSubArea}
+                        onChange={
+                          GETIDSUBAREA
+                        }
+                        id="selectIDO"
+                        name="idSubArea"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="row">
+                  <div className="col-md-6 mb-4">
+                    <label className="form-label">EQUIPO</label>
+                    <Select
+                      defaultValue={{ label: 'SELECCIONAR EQUIPO', value: 'empty' }}
+                      options={ListEquipo}
+                      onChange={
+                        GETIDEQUIPO
+                      }
+
+                      name="idSubArea"
+                    />
+                  </div>
+
+                  <div className="col-md-6 mb-4">
                     <div className="form-outline">
                       <label className="form-label">NOMBRE</label>
                       <input
@@ -142,26 +407,7 @@ const CreateParte = () => {
                     </div>
                   </div>
 
-                  <div className="col-md-5 mb-4">
-                    <label className="form-label">EQUIPO</label>
-                    <select
-                      className="form-select"
-                      defaultValue={"DEFAULT"}
-                      id="selectIDO"
-                      name="idSubproyecto"
-                      value={selectIdEquipo}
-                      onChange={(e) =>
-                        setselectIdEquipo(e.target.value)
-                      }
-                    >
-                      <option value="DEFAULT">Selecciona un ID</option>
-                      {listEquipo.map((item) => (
-                        <option key={item.ID} value={item.ID}>
-                          {item.NOMBRE}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+
                 </div>
 
                 <div className="row">
